@@ -1,0 +1,28 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v3.1",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v3.1": {
+      "Oracle.ManagedDataAccess/19.11.0": {
+        "runtime": {
+          "lib/net40/Oracle.ManagedDataAccess.dll": {
+            "assemblyVersion": "4.122.19.1",
+            "fileVersion": "4.122.19.1"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Oracle.ManagedDataAccess/19.11.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-E1d+kp34TAS5BVM1vmPGc+jc+psG5gc+JkP6GmHVB26HUfOdKxz/8axsLMl63h2uxe2IQzVXWWXt823pM+15oQ==",
+      "path": "oracle.manageddataaccess/19.11.0",
+      "hashPath": "oracle.manageddataaccess.19.11.0.nupkg.sha512"
+    }
+  }
+}

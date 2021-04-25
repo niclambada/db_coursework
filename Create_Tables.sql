@@ -1,8 +1,13 @@
-drop table Client;
+--drop table Client;
 --drop table Employee;
 --drop table Vacancy;
 --drop table OrderStatus
---drop Equipment
+
+--drop table Equipment
+--drop table Makers
+--drop table ComponentsOrder
+--drop table ShopOfComponents
+--drop table COrder
 ------EMp Login Must be unique-------------------------
  
  create table Client
@@ -59,6 +64,57 @@ create table Equipment
       EModel nvarchar2(100) not null
 );
 
+
+create table Makers
+(
+   Id_make NUMBER GENERATED ALWAYS AS IDENTITY,
+      CONSTRAINT Make_pk PRIMARY KEY (Id_make),
+      TypeOfRepair nvarchar2(200) not null,
+      Costs number not null,
+      DateOfRepair date not null
+      
+);
+
+
+create table ComponentsOrder
+(
+  Id_ComOr NUMBER GENERATED ALWAYS AS IDENTITY,
+    CONSTRAINT CO_pk PRIMARY KEY (Id_ComOr),
+     Id_make number not null,
+  CONSTRAINT fk_Id_make FOREIGN KEY (Id_make) REFERENCES Makers(Id_make),
+  ListOfComponents nvarchar2(1000) not null,
+  PriceOfComponents number not null
+    
+);
+
+
+create table ShopOfComponents
+(
+    Id_Com NUMBER GENERATED ALWAYS AS IDENTITY,
+    CONSTRAINT Com_pk PRIMARY KEY (Id_Com),
+    ComName nvarchar2(200) not null,
+    Price number not null
+    
+);
+
+create table COrder
+(
+   Id_Or NUMBER GENERATED ALWAYS AS IDENTITY,
+    CONSTRAINT Or_pk PRIMARY KEY (Id_Or),
+     Id_eqp number not null,
+  CONSTRAINT fk_Id_Eq FOREIGN KEY (Id_eqp) REFERENCES Equipment(Id_eqp),
+  Id_Client number not null,
+  CONSTRAINT fk_Id_Cl FOREIGN KEY (Id_Client) REFERENCES Client(Id_Client),
+  Id_emp number not null,
+  CONSTRAINT fk_Id_Emp FOREIGN KEY (Id_emp) REFERENCES Employee(Id_emp),
+   Id_Order number not null,
+  CONSTRAINT fk_Id_OrStatus FOREIGN KEY (Id_Order) REFERENCES OrderStatus(Id_Order),
+   Id_make number not null,
+  CONSTRAINT fk_Id_mk FOREIGN KEY (Id_make) REFERENCES Makers(Id_make),
+  OrderDate date not null
+);
+
+
 --Package----
 ----------------------------
 create or replace package cwPack1
@@ -71,6 +127,10 @@ procedure addEmp(fullName nvarchar2, Id_vac  number, PassportSeria nvarchar2, Pa
 procedure showAllEmp;
 procedure addStatus(stName nvarchar2);
  procedure showAllOrderStatus;
+ 
+   PROCEDURE GET
+ (ConscriptsOut OUT sys_refcursor);
+ 
 end cwPack1;
 -----------------------------------
 drop package cwPack1;
@@ -167,6 +227,20 @@ when others then
    raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
   end showAllOrderStatus;
   
+  
+  PROCEDURE GET
+ (ConscriptsOut OUT sys_refcursor)
+as
+BEGIN
+
+ OPEN ConscriptsOut FOR
+   SELECT   id_client, fullname, adress,phonenumber
+  FROM  Client; 
+ 
+ end GET;
+  
+  
+  
 end cwPack1;
 
 select fullname, id_vac, passportseria,passportnumber,adress,phonenumber,to_char(startworkdate, 'DD-MM-YYYY') from employee;
@@ -185,7 +259,34 @@ begin
 cwpack1.showallorderstatus;
 end;
 
-select * from employee
+
+
+DECLARE
+  C_EMP SYS_REFCURSOR;
+  TYPE new_type IS RECORD(id_client number, fullname nvarchar2(150), adress nvarchar2(150),phonenumber nvarchar2(140));
+  L_REC new_type; --instead of using %ROWTYPE, use the declared type
+BEGIN
+  cwpack1.GET(C_EMP);
+  LOOP
+ FETCH c_emp INTO l_rec;
+ EXIT WHEN c_emp%NOTFOUND;
+
+     dbms_output.put_line(l_rec.id_client|| ' ' ||l_rec. fullname|| ' ' ||l_rec.adress|| ' ' ||l_rec.phonenumber );
+ END LOOP;
+
+CLOSE c_emp;
+END;
+
+drop procedure GET;
+declare 
+ cur  number ; 
+begin 
+
+
+cwpack1.GET();
+end;
+
+select * from client
 
 
 
