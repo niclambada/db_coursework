@@ -45,6 +45,10 @@
         "net5.0-windows7.0": {
           "targetAlias": "net5.0-windows",
           "dependencies": {
+            "Devart.Data.Oracle": {
+              "target": "Package",
+              "version": "[9.14.1234, )"
+            },
             "Oracle.ManagedDataAccess.Core": {
               "target": "Package",
               "version": "[3.21.1, )"

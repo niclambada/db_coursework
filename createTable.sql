@@ -5,8 +5,8 @@
 
 --drop table Equipment
 --drop table Makers
---drop table ComponentsOrder
---drop table ShopOfComponents
+drop table ComponentsOrder
+drop table ShopOfComponents
 --drop table COrder
 ------EMp Login Must be unique-------------------------
  
@@ -78,8 +78,8 @@ create table Makers
 
 create table ComponentsOrder
 (
-  Id_ComOr NUMBER GENERATED ALWAYS AS IDENTITY,
-    CONSTRAINT CO_pk PRIMARY KEY (Id_ComOr),
+  Id_Com NUMBER not null,
+    CONSTRAINT fk_Id_Com FOREIGN KEY (Id_Com) REFERENCES ShopOfComponents(Id_Com),
      Id_make number not null,
   CONSTRAINT fk_Id_make FOREIGN KEY (Id_make) REFERENCES Makers(Id_make),
   ListOfComponents nvarchar2(1000) not null,
@@ -110,7 +110,7 @@ create table COrder
   CONSTRAINT fk_Id_Emp FOREIGN KEY (Id_emp) REFERENCES Employee(Id_emp),
    Id_Status number not null,
   CONSTRAINT fk_Id_OrStatus FOREIGN KEY (Id_Status) REFERENCES OrderStatus(Id_Order),
-   Id_make number not null,
+   Id_make number,
   CONSTRAINT fk_Id_mk FOREIGN KEY (Id_make) REFERENCES Makers(Id_make),
   OrderDate date not null
 );
@@ -134,7 +134,14 @@ procedure checkClientAccount(lg nvarchar2, ps nvarchar2, results out number);
 procedure checkEmpAccount(login1 nvarchar2, pass1 nvarchar2, results out number);
 procedure getClienIdAndName(lgin nvarchar2, psd nvarchar2, id_ret out number, fio out nvarchar2);
 procedure getNameAndIdEmp(p_cursor IN OUT NOCOPY SYS_REFCURSOR); 
+procedure addEquipment(eqname nvarchar2, sernum nvarchar2, descr nvarchar2, eqmakers nvarchar2, eqmodel nvarchar2);
+procedure makeOrder(eq_Id number,client_Id number, empl_Id number, status_id number, maker_id number, dateO date);
+procedure getEpuipmentIdForOrder(results out number);
 end cwPack1;
+
+
+  
+
 -----------------------------------
 --drop package cwPack1;
 -----Package body-----
@@ -185,7 +192,7 @@ when others then
    raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
   end showAllVacancy;
  
-  procedure addEmp(fullName nvarchar2, Id_vac  number, PassportSeria nvarchar2, PassportNumber nvarchar2,  Adress nvarchar2,  PhoneNumber nvarchar2, StartWorkDate date, Login nvarchar2, Passw nvarchar2)
+procedure addEmp(fullName nvarchar2, Id_vac  number, PassportSeria nvarchar2, PassportNumber nvarchar2,  Adress nvarchar2,  PhoneNumber nvarchar2, StartWorkDate date, Login nvarchar2, Passw nvarchar2)
     as
   begin 
       insert into Employee(fullname, id_vac, passportseria,passportnumber,adress,phonenumber,startworkdate, login, passw) values(fullName, Id_vac, PassportSeria, PassportNumber,  Adress,  PhoneNumber, StartWorkDate, Login, Passw); 
@@ -289,8 +296,39 @@ OPEN p_cursor FOR
 select Id_emp, fullName  from employee;
  end getNameAndIdEmp; 
 
+procedure addEquipment(eqname nvarchar2, sernum nvarchar2, descr nvarchar2, eqmakers nvarchar2, eqmodel nvarchar2)
+as
+begin
+insert into equipment(Ename, SeriaNumber, Description, Maker, EModel) values(eqname,sernum,  descr, eqmakers, eqmodel);
+ commit;
+    exception
+when others then
+   raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
+end addEquipment;
+
+procedure getEpuipmentIdForOrder(results out number)
+as
+begin 
+results:=0;
+select max(id_eqp) into results from equipment;
+end getEpuipmentIdForOrder;
+
+procedure makeOrder(eq_Id number,client_Id number, empl_Id number, status_id number, maker_id number, dateO date)
+as
+begin
+insert into corder(Id_eqp, Id_Client, Id_emp, Id_Status, Id_make, OrderDate) values(eq_Id ,client_Id , empl_Id , status_id , maker_id , dateO );
+commit;
+    exception
+when others then
+   raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
+end makeOrder;
+
 end cwPack1;
 
+delete from  equipment
+select * from equipment;
+select * from COrder;
+select * from OrderStatus;
 select fullname, id_vac, passportseria,passportnumber,adress,phonenumber,to_char(startworkdate, 'DD-MM-YYYY') from employee;
 --------------------------end body---------------------
 SET SERVEROUTPUT ON;
@@ -300,11 +338,11 @@ begin
 --cwpack1.addvacancy('Engineer');
 --cwpack1.showallvacancy;
 ----------fullname, id_vac, passportseria,passportnumber,adress,phonenumber,startworkdate--
-cwpack1.addemp('Petrov Mihail Ivanovich', 1,'2827829M823181', 'HB988981218','Yakuba Kolasa 2B, 122','+37626722148', '3.12.2003', 'Login13','Pa');
+--cwpack1.addemp('Petrov Mihail Ivanovich', 1,'2827829M823181', 'HB988981218','Yakuba Kolasa 2B, 122','+37626722148', '3.12.2003', 'Login13','Pa');
 --cwpack1.showallemp;
 --------in waiting, in processing, done 
---cwpack1.addstatus('in waiting');
---cwpack1.showallorderstatus;
+--cwpack1.addstatus('in done');
+cwpack1.showallorderstatus;
 end;
 
 
@@ -382,4 +420,8 @@ end;
 select * from employee;
 select Id_Client   from Client where Login='Login' and Passw='Passw';
 select FullName from Client where Login='Login' and Passw='Passw';
+
+
+
+
 
