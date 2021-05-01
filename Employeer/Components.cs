@@ -10,6 +10,7 @@ namespace Employeer
     {
         public string id { get; set; }
         public string comName { get; set; }
+        public string price { get; set; }
 
         public Components() { }
     }

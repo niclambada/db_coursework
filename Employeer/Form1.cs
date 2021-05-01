@@ -35,7 +35,7 @@ namespace Employeer
 
                 EmployeeForm employee = new EmployeeForm();
                 employee.Show();
-                MessageBox.Show("Emp");
+                
                 this.Hide();
             }
         }

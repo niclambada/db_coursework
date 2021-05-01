@@ -370,12 +370,19 @@ procedure getComponentsNameAndId(p_cursor IN OUT NOCOPY SYS_REFCURSOR)
 as
 begin
 OPEN p_cursor FOR 
-select Id_com, comname  from ShopOfComponents;
+select Id_com, comname, price  from ShopOfComponents;
 end getComponentsNameAndId;
+
+
+procedure getClientOrdersForEmployee()
+as
+begin
+
+end getClientOrdersForEmployee;
 
 end cwPack1;
 
-
+select Id_com, comname, price  from ShopOfComponents;
 
 
 delete from  equipment
@@ -383,12 +390,18 @@ select * from equipment;
 select * from COrder;
 select * from OrderStatus;
 select * from Client
-select * from EMPLOYEE
+select * from EMPLOYEE where id_emp = 3
 select * from OrderStatus
 select * from makers
 select * from ShopOfComponents
 
-                                                   
+   select distinct Corder.id_or, corder.orderdate as Дата_Заказа, equipment.ename as Наименование_оборудования, equipment.Description as Описание_поломки, OrderStatus.statusname as Статус_заказа, Client.Fullname as Имя_Клиента
+                                                    from Corder
+                                                    inner join Client on Corder.Id_client = Client.Id_client
+                                                    inner join equipment on  corder.id_eqp = equipment.Id_eqp
+                                                    inner join Employee on Corder.Id_emp = 3
+                                                    inner join OrderStatus on Corder.Id_status = OrderStatus.Id_order;
+exception                                                
                                                     
 
 select fullname, id_vac, passportseria,passportnumber,adress,phonenumber,to_char(startworkdate, 'DD-MM-YYYY') from employee;

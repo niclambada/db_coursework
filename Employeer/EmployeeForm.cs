@@ -9,11 +9,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+
 namespace Employeer
 {
     public partial class EmployeeForm : Form
     {
         public List<Components> componentsList = new List<Components>();
+        public List<int> addcomponentIdsList = new List<int>();
         public EmployeeForm()
         {
             InitializeComponent();
@@ -51,7 +53,8 @@ namespace Employeer
                     Components emp = new Components()
                     {
                         id = objReader.GetValue(0).ToString(),
-                        comName = objReader.GetValue(1).ToString()
+                        comName = objReader.GetValue(1).ToString(),
+                        price = objReader.GetValue(2).ToString()
                     };
                     componentsList.Add(emp);
 
@@ -79,10 +82,49 @@ namespace Employeer
         {
 
         }
-
+        int amount = 0;
         private void buyDetail_Click(object sender, EventArgs e)
         {
+            int cost = 0;
 
+           
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            //listBox1.Items.Add(comboBox1.SelectedValue.ToString());
+            listBox1.Items.Add(comboBox1.Text.ToString());
+            addcomponentIdsList.Add(int.Parse(comboBox1.SelectedValue.ToString()));
+
+            var ts = from tc in componentsList
+                     where tc.id == comboBox1.SelectedValue.ToString()
+                     select int.Parse(tc.price);
+           
+
+            foreach(var i in ts)
+            {
+                amount += i;
+            }
+            MessageBox.Show(amount.ToString());
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            if (listBox1.SelectedItem!= null) { 
+            listBox1.Items.Remove(listBox1.SelectedItem);
+            addcomponentIdsList.Remove(int.Parse(comboBox1.SelectedValue.ToString()));
+            var ts = from tc in componentsList
+                     where tc.id == comboBox1.SelectedValue.ToString()
+                     select int.Parse(tc.price);
+
+
+            foreach (var i in ts)
+            {
+               
+                amount -= i;
+            }
+            MessageBox.Show(amount.ToString());
+            }
         }
     }
 }
