@@ -81,10 +81,7 @@ create table ComponentsOrder
   Id_Com NUMBER not null,
     CONSTRAINT fk_Id_Com FOREIGN KEY (Id_Com) REFERENCES ShopOfComponents(Id_Com),
      Id_make number not null,
-  CONSTRAINT fk_Id_make FOREIGN KEY (Id_make) REFERENCES Makers(Id_make),
-  ListOfComponents nvarchar2(1000) not null,
-  PriceOfComponents number not null
-    
+  CONSTRAINT fk_Id_make FOREIGN KEY (Id_make) REFERENCES Makers(Id_make)
 );
 
 
@@ -110,11 +107,26 @@ create table COrder
   CONSTRAINT fk_Id_Emp FOREIGN KEY (Id_emp) REFERENCES Employee(Id_emp),
    Id_Status number not null,
   CONSTRAINT fk_Id_OrStatus FOREIGN KEY (Id_Status) REFERENCES OrderStatus(Id_Order),
-   Id_make number,
+   Id_make number default null,
   CONSTRAINT fk_Id_mk FOREIGN KEY (Id_make) REFERENCES Makers(Id_make),
   OrderDate date not null
 );
 
+
+
+-----Users----
+
+
+/*create user C##Client identified by Password123;
+grant create session to C##Client;
+grant execute on cwPack1 to C##Client;
+GRANT SELECT ON SYSTEM TO C##Client
+
+select * from shema where owner ='SYSTEM'
+select sys_context('userenv','CURRENT_SCHEMA') from dual
+SELECT *
+  FROM dba_users where username = 'SYSTEM'*/
+--------------
 
 --Package----
 ----------------------------
@@ -135,12 +147,16 @@ procedure checkEmpAccount(login1 nvarchar2, pass1 nvarchar2, results out number)
 procedure getClienIdAndName(lgin nvarchar2, psd nvarchar2, id_ret out number, fio out nvarchar2);
 procedure getNameAndIdEmp(p_cursor IN OUT NOCOPY SYS_REFCURSOR); 
 procedure addEquipment(eqname nvarchar2, sernum nvarchar2, descr nvarchar2, eqmakers nvarchar2, eqmodel nvarchar2);
-procedure makeOrder(eq_Id number,client_Id number, empl_Id number, status_id number, maker_id number, dateO date);
+procedure makeOrder(eq_Id number,client_Id number, empl_Id number, status_id number, dateO date);
 procedure getEpuipmentIdForOrder(results out number);
+procedure showCurrentClientOrders(cl_id number, p_cursor IN OUT NOCOPY SYS_REFCURSOR);
+procedure addComponents(componname nvarchar2, compcost number);
+procedure getComponentsNameAndId(p_cursor IN OUT NOCOPY SYS_REFCURSOR);
 end cwPack1;
 
 
-  
+
+  select * from makers
 
 -----------------------------------
 --drop package cwPack1;
@@ -149,7 +165,8 @@ end cwPack1;
 
 create or replace package body cwPack1
   as 
- procedure addClient(fullName nvarchar2, Adress nvarchar2, PhoneNumber nvarchar2, Login nvarchar2, Passw nvarchar2)
+ 
+procedure addClient(fullName nvarchar2, Adress nvarchar2, PhoneNumber nvarchar2, Login nvarchar2, Passw nvarchar2)
     as
   begin
   insert into Client(fullname, adress,phonenumber, login, passw) values(fullName, Adress, PhoneNumber, Login, Passw);
@@ -313,22 +330,67 @@ results:=0;
 select max(id_eqp) into results from equipment;
 end getEpuipmentIdForOrder;
 
-procedure makeOrder(eq_Id number,client_Id number, empl_Id number, status_id number, maker_id number, dateO date)
+procedure makeOrder(eq_Id number,client_Id number, empl_Id number, status_id number,  dateO date)
 as
 begin
-insert into corder(Id_eqp, Id_Client, Id_emp, Id_Status, Id_make, OrderDate) values(eq_Id ,client_Id , empl_Id , status_id , maker_id , dateO );
+insert into corder(Id_eqp, Id_Client, Id_emp, Id_Status, OrderDate) values(eq_Id ,client_Id , empl_Id , status_id ,  dateO );
 commit;
     exception
 when others then
    raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
 end makeOrder;
 
+procedure showCurrentClientOrders(cl_id number, p_cursor IN OUT NOCOPY SYS_REFCURSOR)
+as
+begin
+OPEN p_cursor FOR 
+select distinct Corder.id_or, corder.orderdate as Дата_Заказа, equipment.ename as Наименование_оборудования, Employee.FULLNAME as Имя_исполнителя, OrderStatus.statusname as Статус_заказа
+                                                    from Corder
+                                                    inner join Client on Corder.Id_client = cl_id
+                                                    inner join  equipment on  corder.id_eqp = equipment.Id_eqp
+                                                    inner join Employee on Corder.Id_emp = Employee.Id_Emp
+                                                    inner join OrderStatus on Corder.Id_status = OrderStatus.Id_order;
+exception
+when others then
+   raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
+end showCurrentClientOrders;
+
+
+procedure addComponents(componname nvarchar2, compcost number)
+as
+begin 
+insert into ShopOfComponents (ComName, Price) values(componname, compcost);
+commit;
+     exception
+when others then
+   raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
+end addComponents;
+
+procedure getComponentsNameAndId(p_cursor IN OUT NOCOPY SYS_REFCURSOR)
+as
+begin
+OPEN p_cursor FOR 
+select Id_com, comname  from ShopOfComponents;
+end getComponentsNameAndId;
+
 end cwPack1;
+
+
+
 
 delete from  equipment
 select * from equipment;
 select * from COrder;
 select * from OrderStatus;
+select * from Client
+select * from EMPLOYEE
+select * from OrderStatus
+select * from makers
+select * from ShopOfComponents
+
+                                                   
+                                                    
+
 select fullname, id_vac, passportseria,passportnumber,adress,phonenumber,to_char(startworkdate, 'DD-MM-YYYY') from employee;
 --------------------------end body---------------------
 SET SERVEROUTPUT ON;
@@ -417,6 +479,43 @@ begin
        close cur;
     end if;    
 end;
+
+declare 
+cur sys_refcursor;
+   TYPE zz1  IS RECORD(id_or number, orderdate date, ename nvarchar2(150), FULLNAME nvarchar2(150), statusname nvarchar2(150));  -- обязательно надо определить, куда фетчим, это самый скользкий момент
+   zz zz1;
+begin
+   cwpack1.showCurrentClientOrders(1, cur);
+     loop
+      fetch cur into zz;
+      EXIT when cur%notfound;
+       dbms_output.put_line('Id order: ' || zz.id_or ||' Дата Заказа: ' || zz.orderdate|| ' Наименование оборудования: ' || zz.ename || ' Имя исполнителя: ' ||zz.FULLNAME || ' Статус заказа: ' || zz.statusname);
+    end loop;
+  if cur%isopen then
+       close cur;
+    end if;    
+end;
+
+
+declare
+cur sys_refcursor;
+   TYPE zz1  IS RECORD(Id_com number, comname nvarchar2(150));  -- обязательно надо определить, куда фетчим, это самый скользкий момент
+   zz zz1;
+    -- можно явно задать zz в виде записи (record)
+begin 
+     cwpack1.getComponentsNameAndId(cur);
+     loop
+      fetch cur into zz;
+     
+      EXIT when cur%notfound;
+       dbms_output.put_line(zz.Id_com||' ' || zz.comname);
+    end loop;
+  if cur%isopen then
+       close cur;
+    end if;    
+end;
+
+
 select * from employee;
 select Id_Client   from Client where Login='Login' and Passw='Passw';
 select FullName from Client where Login='Login' and Passw='Passw';
