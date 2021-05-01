@@ -97,13 +97,19 @@ namespace DBCW
             {
                // MessageBox.Show(objReader.GetName(i));
             }
+            dataGridView1.ColumnCount = 5;
+            dataGridView1.Columns[0].Name = "Product ID";
+            dataGridView1.Columns[1].Name = "Product Name";
+            dataGridView1.Columns[2].Name = "Product Price";
+            dataGridView1.Columns[3].Name = "Product Price";
+            dataGridView1.Columns[4].Name = "Product Price";
             //System.Console.Write("\n");
             while (objReader.Read())
             {
                 for (int i = 0; i < objReader.FieldCount; i++)
                 {
 
-                    //MessageBox.Show(objReader[i].ToString());
+                    //dataGridView1.Rows.Add(objReader.GetValue(i));
                 }
                 //System.Console.Write("\n");
             }
@@ -190,13 +196,16 @@ namespace DBCW
                 fillEquipmentTable(nameBox1.Text, seriaNumBox2.Text, descsBox3.Text, makerBox4.Text, modelBox5.Text);
                 equipId = getEquipmentId();
                 Order(equipId, Id, int.Parse(comboBox1.SelectedValue.ToString()), 1, 0, DateTime.Now);
+                nameBox1.Clear();
+                seriaNumBox2.Clear();
+                descsBox3.Clear();
+                makerBox4.Clear();
+                modelBox5.Clear();
             }
         }
         public void Order(int eq_Id , int client_Id , int empl_Id , int status_id , int maker_id , DateTime dateO )
         {
             OracleConnection conn = DBUtils.GetDBConnection();
-
-
             try
             {
 
@@ -207,11 +216,10 @@ namespace DBCW
                 cmd.CommandText = "cwpack1.makeOrder";
                 cmd.CommandType = CommandType.StoredProcedure;
              
-                cmd.Parameters.Add("eq_Id", OracleDbType.Int64).Value = eq_Id;
-                cmd.Parameters.Add("client_Id", OracleDbType.Int64).Value = client_Id;
-                cmd.Parameters.Add("empl_Id", OracleDbType.Int64).Value = empl_Id;
-                cmd.Parameters.Add("status_id", OracleDbType.Int64).Value = status_id;
-                cmd.Parameters.Add("maker_id", OracleDbType.Int64).Value = maker_id;
+                cmd.Parameters.Add("eq_Id", OracleDbType.Int32).Value = eq_Id;
+                cmd.Parameters.Add("client_Id", OracleDbType.Int32).Value = client_Id;
+                cmd.Parameters.Add("empl_Id", OracleDbType.Int32).Value = empl_Id;
+                cmd.Parameters.Add("status_id", OracleDbType.Int32).Value = status_id;
                 cmd.Parameters.Add("dateO", OracleDbType.Date).Value = dateO;
                 
 
@@ -317,6 +325,54 @@ namespace DBCW
         private void button2_Click_1(object sender, EventArgs e)
         {
             checkm();
+        }
+
+       
+
+        public void showCurrentClientOrders()
+        {
+            OracleConnection conn = DBUtils.GetDBConnection();
+            try
+            {
+
+                conn.Open();
+                OracleDataAdapter objAdapter = new OracleDataAdapter();
+                
+                OracleCommand cmd = new Oracle.ManagedDataAccess.Client.OracleCommand();
+                cmd.Connection = conn;
+                cmd.CommandText = "cwpack1.showCurrentClientOrders";
+                cmd.CommandType = CommandType.StoredProcedure;
+
+
+                cmd.Parameters.Add("cl_id", OracleDbType.Int32).Value = int.Parse(Id.ToString());
+                cmd.Parameters.Add("p_cursor", OracleDbType.RefCursor).Direction = ParameterDirection.Output;
+                
+                objAdapter.SelectCommand = cmd;
+              
+                DataTable dtEmp = new DataTable();
+                objAdapter.Fill(dtEmp);
+                dataGridView1.DataSource = dtEmp;
+               
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error: " + ex);
+                MessageBox.Show(ex.StackTrace);
+            }
+            finally
+            {
+                conn.Close();
+                conn.Dispose();
+            }
+
+
+        }
+
+      
+
+        private void tabControl1_MouseClick(object sender, MouseEventArgs e)
+        {
+            showCurrentClientOrders();
         }
     }
 }

@@ -70,7 +70,7 @@ namespace DBCW
         #endregion
         private void button1_Click_1(object sender, EventArgs e)
         {
-            string patern = @"^(\+375|80)(29|25|44|33)(\d{3})(\d{2})(\d{2})$";
+            string patern = @"^(\375|80)(29|25|44|33)(\d{3})(\d{2})(\d{2})$";
             registered.Visible = false;
             if (String.IsNullOrEmpty(fioBox1.Text))
             {
@@ -90,7 +90,7 @@ namespace DBCW
             }
             else if (!Regex.IsMatch(phNumBox3.Text, patern, RegexOptions.IgnoreCase))
             {
-                errorProvider1.SetError(phNumBox3, "Неверный формат номера телефона");
+                errorProvider1.SetError(phNumBox3, "Неверный формат номера телефона 80(375)ххххххххх");
             }
             else if (String.IsNullOrEmpty(loginBox4.Text))
             {
