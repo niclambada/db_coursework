@@ -323,6 +323,9 @@ namespace DBCW
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(956, 478);
             this.Controls.Add(this.tabControl1);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.MaximumSize = new System.Drawing.Size(974, 525);
+            this.MinimumSize = new System.Drawing.Size(974, 525);
             this.Name = "ClientForm";
             this.Text = "ClientForm";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ClientForm_FormClosing);

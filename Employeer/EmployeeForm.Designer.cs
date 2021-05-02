@@ -273,6 +273,9 @@ namespace Employeer
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1315, 582);
             this.Controls.Add(this.tabControl1);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.MaximumSize = new System.Drawing.Size(1333, 629);
+            this.MinimumSize = new System.Drawing.Size(1333, 629);
             this.Name = "EmployeeForm";
             this.Text = "EmployeeForm";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.EmployeeForm_FormClosing);

@@ -45,6 +45,7 @@ namespace DBCW
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.err = new System.Windows.Forms.Label();
             this.button2 = new System.Windows.Forms.Button();
             this.passwBox6 = new System.Windows.Forms.TextBox();
             this.loginBox7 = new System.Windows.Forms.TextBox();
@@ -52,7 +53,6 @@ namespace DBCW
             this.label7 = new System.Windows.Forms.Label();
             this.errorProvider1 = new System.Windows.Forms.ErrorProvider(this.components);
             this.errorProvider2 = new System.Windows.Forms.ErrorProvider(this.components);
-            this.err = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -216,6 +216,17 @@ namespace DBCW
             this.tabPage2.Text = "Авторизация";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
+            // err
+            // 
+            this.err.AutoSize = true;
+            this.err.Font = new System.Drawing.Font("Times New Roman", 13.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.err.ForeColor = System.Drawing.Color.Red;
+            this.err.Location = new System.Drawing.Point(295, 292);
+            this.err.Name = "err";
+            this.err.Size = new System.Drawing.Size(314, 25);
+            this.err.TabIndex = 20;
+            this.err.Text = "Неверный логин или пароль";
+            // 
             // button2
             // 
             this.button2.Location = new System.Drawing.Point(295, 234);
@@ -267,23 +278,15 @@ namespace DBCW
             // 
             this.errorProvider2.ContainerControl = this;
             // 
-            // err
-            // 
-            this.err.AutoSize = true;
-            this.err.Font = new System.Drawing.Font("Times New Roman", 13.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.err.ForeColor = System.Drawing.Color.Red;
-            this.err.Location = new System.Drawing.Point(295, 292);
-            this.err.Name = "err";
-            this.err.Size = new System.Drawing.Size(314, 25);
-            this.err.TabIndex = 20;
-            this.err.Text = "Неверный логин или пароль";
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Controls.Add(this.tabControl1);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.MaximumSize = new System.Drawing.Size(818, 497);
+            this.MinimumSize = new System.Drawing.Size(818, 497);
             this.Name = "Form1";
             this.Text = "MainMenu";
             this.tabControl1.ResumeLayout(false);
