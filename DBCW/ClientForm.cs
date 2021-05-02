@@ -373,6 +373,44 @@ namespace DBCW
         private void tabControl1_MouseClick(object sender, MouseEventArgs e)
         {
             showCurrentClientOrders();
+            showHistoryClientOrders();
+            
+        }
+        public void showHistoryClientOrders()
+        {
+            OracleConnection conn = DBUtils.GetDBConnection();
+            try
+            {
+
+                conn.Open();
+                OracleDataAdapter objAdapter = new OracleDataAdapter();
+
+                OracleCommand cmd = new Oracle.ManagedDataAccess.Client.OracleCommand();
+                cmd.Connection = conn;
+                cmd.CommandText = "cwpack1.showHistoryClientOrders";
+                cmd.CommandType = CommandType.StoredProcedure;
+
+
+                cmd.Parameters.Add("cl_id", OracleDbType.Int32).Value = int.Parse(Id.ToString());
+                cmd.Parameters.Add("p_cursor", OracleDbType.RefCursor).Direction = ParameterDirection.Output;
+
+                objAdapter.SelectCommand = cmd;
+
+                DataTable dtEmp = new DataTable();
+                objAdapter.Fill(dtEmp);
+                dataGridView2.DataSource = dtEmp;
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error: " + ex);
+                MessageBox.Show(ex.StackTrace);
+            }
+            finally
+            {
+                conn.Close();
+                conn.Dispose();
+            }
         }
     }
 }

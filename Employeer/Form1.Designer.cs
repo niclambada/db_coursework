@@ -32,6 +32,7 @@ namespace Employeer
             this.components = new System.ComponentModel.Container();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.err = new System.Windows.Forms.Label();
             this.button2 = new System.Windows.Forms.Button();
             this.passwBox6 = new System.Windows.Forms.TextBox();
             this.loginBox7 = new System.Windows.Forms.TextBox();
@@ -54,6 +55,7 @@ namespace Employeer
             // 
             // tabPage2
             // 
+            this.tabPage2.Controls.Add(this.err);
             this.tabPage2.Controls.Add(this.button2);
             this.tabPage2.Controls.Add(this.passwBox6);
             this.tabPage2.Controls.Add(this.loginBox7);
@@ -66,6 +68,17 @@ namespace Employeer
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Авторизация";
             this.tabPage2.UseVisualStyleBackColor = true;
+            // 
+            // err
+            // 
+            this.err.AutoSize = true;
+            this.err.Font = new System.Drawing.Font("Times New Roman", 13.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.err.ForeColor = System.Drawing.Color.Red;
+            this.err.Location = new System.Drawing.Point(280, 294);
+            this.err.Name = "err";
+            this.err.Size = new System.Drawing.Size(314, 25);
+            this.err.TabIndex = 21;
+            this.err.Text = "Неверный логин или пароль";
             // 
             // button2
             // 
@@ -120,6 +133,7 @@ namespace Employeer
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Controls.Add(this.tabControl1);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Name = "Form1";
             this.Text = "EmployeemMenu";
             this.tabControl1.ResumeLayout(false);
@@ -140,6 +154,7 @@ namespace Employeer
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.ErrorProvider errorProvider1;
+        private System.Windows.Forms.Label err;
     }
 }
 

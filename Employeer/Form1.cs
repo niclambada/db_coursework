@@ -16,10 +16,12 @@ namespace Employeer
         public Form1()
         {
             InitializeComponent();
+            err.Visible = false;
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
+            err.Visible = false;
             if (String.IsNullOrEmpty(loginBox7.Text))
             {
                 errorProvider1.SetError(loginBox7, "Не указан логин!");
@@ -33,10 +35,14 @@ namespace Employeer
                 List<Employee> newEmp = new List<Employee>();
                 newEmp.Add(getAllEmpInfo());
 
-                EmployeeForm employee = new EmployeeForm();
+                EmployeeForm employee = new EmployeeForm(loginBox7.Text, passwBox6.Text);
                 employee.Show();
                 
                 this.Hide();
+            }
+            else
+            {
+                err.Visible = true;
             }
         }
 
