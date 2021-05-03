@@ -22,6 +22,18 @@ drop table ShopOfComponents
 );
 
 
+ create table Client1
+(
+  Id_Client NUMBER GENERATED ALWAYS AS IDENTITY,
+  CONSTRAINT Client_pk1 PRIMARY KEY (Id_Client),
+  FullName nvarchar2(50) not null,
+  Adress nvarchar2(200) not null,
+  PhoneNumber nvarchar2(40) not null,
+  Login nvarchar2(150 ) not null ,
+  Passw nvarchar2(150) not null
+);
+
+
 create table Vacancy
 (
   Id_vac NUMBER GENERATED ALWAYS AS IDENTITY,
@@ -94,7 +106,7 @@ create table ShopOfComponents
     
 );
 
-drop table COrder
+
 create table COrder
 (
    Id_Or NUMBER GENERATED ALWAYS AS IDENTITY,
@@ -113,20 +125,6 @@ create table COrder
 );
 
 
-
------Users----
-
-
-/*create user C##Client identified by Password123;
-grant create session to C##Client;
-grant execute on cwPack1 to C##Client;
-GRANT SELECT ON SYSTEM TO C##Client
-
-select * from shema where owner ='SYSTEM'
-select sys_context('userenv','CURRENT_SCHEMA') from dual
-SELECT *
-  FROM dba_users where username = 'SYSTEM'*/
---------------
 
 --Package----
 ----------------------------
@@ -162,6 +160,9 @@ procedure changeOrderStatus(idor number);
 procedure getClientOrdersForEmployeeToDo(eplid number, p_cursor IN OUT NOCOPY SYS_REFCURSOR);
 procedure showHistoryClientOrders(cl_id number, p_cursor IN OUT NOCOPY SYS_REFCURSOR);
 procedure getOrdersHistoryForEmployee(eplid number, p_cursor IN OUT NOCOPY SYS_REFCURSOR);
+procedure importXmlDataFromClients;
+procedure importXmlDataFromComponents;
+procedure exportXmlToClients;
 end cwPack1;
 
 
@@ -175,12 +176,11 @@ end cwPack1;
 
 create or replace package body cwPack1
   as 
- 
 procedure addClient(fullName nvarchar2, Adress nvarchar2, PhoneNumber nvarchar2, Login nvarchar2, Passw nvarchar2)
-    as
-  begin
-  insert into Client(fullname, adress,phonenumber, login, passw) values(fullName, Adress, PhoneNumber, Login, Passw);
-  commit;
+as
+begin
+insert into Client(fullname, adress,phonenumber, login, passw) values(fullName, Adress, PhoneNumber, Login, Passw);
+commit;
       exception
 when others then
    raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
@@ -448,8 +448,6 @@ when others then
    raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
 end getClientOrdersForEmployeeToDo;
 
---select * from componentsorder
---select * from ShopOfComponents
 
 procedure getOrdersHistoryForEmployee(eplid number, p_cursor IN OUT NOCOPY SYS_REFCURSOR)
 as
@@ -519,12 +517,85 @@ when others then
    raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
 end changeOrderStatus;
  
+ 
+procedure importXmlDataFromClients
+as
+F UTL_FILE.FILE_TYPE;
+MYCLOB CLOB;
+begin
+SELECT  
+DBMS_XMLGEN.GETXML('
+SELECT
+ ID_CLIENT, FULLNAME, ADRESS, PHONENUMBER, LOGIN, PASSW
+FROM
+CLIENT') INTO MYCLOB FROM DUAL;
+F:= UTL_FILE.FOPEN('C:\XML','IMPORTCLIENTS.XML','W');
+UTL_FILE.PUT(F,MYCLOB);
+UTL_FILE.FCLOSE(F);
+exception
+when others then
+   raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
+end importXmlDataFromClients;
+
+procedure importXmlDataFromComponents
+as
+F UTL_FILE.FILE_TYPE;
+MYCLOB CLOB;
+begin
+SELECT  
+DBMS_XMLGEN.GETXML('
+SELECT
+ ID_COM, COMNAME, PRICE
+FROM
+ShopOfComponents') INTO MYCLOB FROM DUAL;
+F:= UTL_FILE.FOPEN('C:\XML','IMPORTShopOfComponents.XML','W');
+UTL_FILE.PUT(F,MYCLOB);
+UTL_FILE.FCLOSE(F);
+exception
+when others then
+   raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
+end importXmlDataFromComponents;
+
+procedure exportXmlToClients
+as
+begin
+insert into Client (FULLNAME, ADRESS, PHONENUMBER, LOGIN, PASSW)
+SELECT *
+    FROM XMLTABLE('/ROWSET/ROW'
+           PASSING XMLTYPE(BFILENAME('DIR','CLIENTS1.XML'),
+           NLS_CHARSET_ID('CHAR_CS'))
+           COLUMNS FullName nvarchar2(50) PATH 'FullName',
+                    Adress nvarchar2(200) PATH 'Adress',
+                    PhoneNumber nvarchar2(40) PATH 'Phone',
+                    Login nvarchar2(150) PATH 'Login',
+                    Passw nvarchar2(150) PATH 'Passw');
+                    commit;
+                    exception
+when others then
+   raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
+      
+end exportXmlToClients;
+
 end cwPack1;
 
-select Id_com, comname, price  from ShopOfComponents;
+CREATE OR REPLACE DIRECTORY  DIR AS 'C:\XML\IMPORT';
+select directory_name from all_directories where directory_path = 'C:\XML\IMPORT'
+select * from Client
+select * from ShopOfComponents
+
+
+begin
+cwpack1.importXmlDataFromClients;
+cwpack1.importxmldatafromcomponents;
+end;
+
+begin
+cwpack1.exportxmltoclients;
+end;
 
 
 
+SELECT count(*) FROM client
 
 
 delete from  equipment
