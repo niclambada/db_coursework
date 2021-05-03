@@ -232,7 +232,7 @@ namespace Employeer
             {
                 amount += i;
             }
-            MessageBox.Show(amount.ToString());
+            
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -250,7 +250,7 @@ namespace Employeer
                
                 amount -= i;
             }
-            MessageBox.Show(amount.ToString());
+            
             }
         }
 
