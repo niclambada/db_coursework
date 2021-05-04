@@ -501,9 +501,9 @@ namespace Employeer
                 }
                 else
                 {
-                    MessageBox.Show("Hello");
+                    
                     int id_order = Convert.ToInt32(dataGridView3[0, dataGridView3.CurrentRow.Index].Value.ToString());
-                    MessageBox.Show(id_order.ToString());
+                   
                     ChangeStatus(id_order);
 
                     getClientOrdersForEmployeeToDo();

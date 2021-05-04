@@ -42,7 +42,7 @@ namespace DBCW
         public void checkm()
         {
             int d = int.Parse(comboBox1.SelectedValue.ToString());
-            MessageBox.Show(d.ToString());
+           
         }
         public void insertEmployeeToCombobox()
         {
@@ -191,7 +191,7 @@ namespace DBCW
             }
             else
             {
-                MessageBox.Show("OK");
+                
                 errorProvider1.Clear();
                 fillEquipmentTable(nameBox1.Text, seriaNumBox2.Text, descsBox3.Text, makerBox4.Text, modelBox5.Text);
                 equipId = getEquipmentId();
