@@ -42,6 +42,7 @@ create table Vacancy
 );
 
 
+
  create table Employee
  (
     Id_emp NUMBER GENERATED ALWAYS AS IDENTITY,
@@ -293,6 +294,122 @@ when others then
 end addComponentsOrder;
 end cwPack2;
 
+SET SERVEROUTPUT ON;
+
+declare
+ct2 number;
+begin
+System.cwpack2.checkEmpAccount('Sotr4','Password1',ct2);
+dbms_output.put_line('count = '||ct2);
+end;
+
+
+declare 
+fio nvarchar2(50);
+idd number;
+begin
+SYSTEM.cwpack2.getCurrentEmplIdAndName('Sotr4','Password1', idd, fio);
+dbms_output.put_line('id = '||idd||' fio '|| fio);
+end;
+
+
+declare
+cur sys_refcursor;
+   TYPE zz1  IS RECORD(Id_com number, comname nvarchar2(150), price number);  -- обязательно надо определить, куда фетчим, это самый скользкий момент
+   zz zz1;
+    -- можно явно задать zz в виде записи (record)
+begin 
+     system.cwpack2.getComponentsNameAndId(cur);
+     loop
+      fetch cur into zz;
+     
+      EXIT when cur%notfound;
+       dbms_output.put_line('Id: '||zz.Id_com||' Name: ' || zz.comname||' price: '||zz.price);
+    end loop;
+  if cur%isopen then
+       close cur;
+    end if;    
+end;
+
+
+--todo order for employee
+declare 
+cur sys_refcursor;
+   TYPE zz1  IS RECORD(id_or number, orderdate date, ename nvarchar2(150), Description nvarchar2(150), statusname nvarchar2(150), Fullname nvarchar2(150));  -- обязательно надо определить, куда фетчим, это самый скользкий момент
+   zz zz1;
+begin
+   System.cwpack2.getClientOrdersForEmployeeToDo(3, cur);
+     loop
+      fetch cur into zz;
+      EXIT when cur%notfound;
+       dbms_output.put_line('Id order: ' || zz.id_or ||' Дата Заказа: ' || zz.orderdate|| ' Наименование оборудования: ' || zz.ename || ' Имя исполнителя: ' ||zz.FULLNAME || ' Статус заказа: ' || zz.statusname|| ' Описание поломки: ' || zz.Description);
+    end loop;
+  if cur%isopen then
+       close cur;
+    end if;    
+end;
+
+
+--change orstatus int Corder idor
+begin 
+System,cwpack2.changeOrderStatus(1);
+end;
+
+
+declare 
+cur sys_refcursor;
+   TYPE zz1  IS RECORD(id_or number, orderdate date, ename nvarchar2(150), Description nvarchar2(150), statusname nvarchar2(150), Fullname nvarchar2(150));  -- обязательно надо определить, куда фетчим, это самый скользкий момент
+   zz zz1;
+begin
+   System.cwpack2.getClientOrdersForEmployee(3, cur);
+     loop
+      fetch cur into zz;
+      EXIT when cur%notfound;
+       dbms_output.put_line('Id order: ' || zz.id_or ||' Дата Заказа: ' || zz.orderdate|| ' Наименование оборудования: ' || zz.ename || ' Имя исполнителя: ' ||zz.FULLNAME || ' Статус заказа: ' || zz.statusname|| ' Описание поломки: ' || zz.Description);
+    end loop;
+  if cur%isopen then
+       close cur;
+    end if;    
+end;
+
+begin
+System.cwpack2.addMakers('repair type', 100, '10.02.2021');
+end;
+
+
+declare
+n number;
+begin
+System.cwpack2.getLastMakers(n);
+dbms_output.put_line('Last Id Maker: ' ||n);
+end;
+
+
+--change corder status and maker idor idmk
+begin
+System.cwpack2.changeStatusAndMakers(1,1);
+end;
+
+declare 
+cur sys_refcursor;
+   TYPE zz1  IS RECORD(id_or number, orderdate date, ename nvarchar2(150), Description nvarchar2(150), statusname nvarchar2(150), Fullname nvarchar2(150),typeofrepair   nvarchar2(150), COSTS number, comname nvarchar2(150));  -- обязательно надо определить, куда фетчим, это самый скользкий момент
+   zz zz1;
+begin
+   System.cwpack2.getOrdersHistoryForEmployee(3, cur);
+     loop
+      fetch cur into zz;
+      EXIT when cur%notfound;
+       dbms_output.put_line('Id order: ' || zz.id_or ||' Дата Заказа: ' || zz.orderdate|| ' Наименование оборудования: ' || zz.ename || ' Имя исполнителя: ' ||zz.FULLNAME || ' Тип ремонта: ' || zz.typeofrepair || ' Статус заказа: ' || zz.statusname|| ' Описание поломки: ' || zz.Description || ' Стоимость: ' || zz.COSTS || ' Наименование детали: ' || zz.comname);
+    end loop;
+  if cur%isopen then
+       close cur;
+    end if;    
+end;
+
+-----------------------End Employee Package-------------------------
+--------------------------------------------------------------------
+--------------------------------------------------------------------
+
 
 create or replace package cwPackadm
 as
@@ -304,7 +421,7 @@ procedure showAllEmp;
 procedure addStatus(stName nvarchar2);
 procedure showAllOrderStatus;
 PROCEDURE GET (ConscriptsOut OUT sys_refcursor);--get all clients
-procedure importXmlDataFromClients;
+procedure importXmlDataFromEmployee;
 procedure importXmlDataFromComponents;
 procedure exportXmlToClients;
 procedure addComponents(componname nvarchar2, compcost number);
@@ -399,7 +516,7 @@ BEGIN
  
  end GET;
 
-procedure importXmlDataFromClients
+procedure importXmlDataFromEmployee
 as
 F UTL_FILE.FILE_TYPE;
 MYCLOB CLOB;
@@ -407,16 +524,16 @@ begin
 SELECT  
 DBMS_XMLGEN.GETXML('
 SELECT
- ID_CLIENT, FULLNAME, ADRESS, PHONENUMBER, LOGIN, PASSW
+ ID_EMP, FULLNAME, ID_VAC,PASSPORTSERIA, PASSPORTNUMBER, ADRESS, PHONENUMBER, STARTWORKDATE LOGIN, PASSW
 FROM
-CLIENT') INTO MYCLOB FROM DUAL;
-F:= UTL_FILE.FOPEN('C:\XML','IMPORTCLIENTS.XML','W');
+EMPLOYEE') INTO MYCLOB FROM DUAL;
+F:= UTL_FILE.FOPEN('C:\XML','IMPORTEMP.XML','W');
 UTL_FILE.PUT(F,MYCLOB);
 UTL_FILE.FCLOSE(F);
 exception
 when others then
    raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
-end importXmlDataFromClients;
+end importXmlDataFromEmployee;
 
 procedure importXmlDataFromComponents
 as
@@ -469,11 +586,64 @@ end addComponents;
 
 end cwPackadm;
 
-  select * from makers
+SET SERVEROUTPUT ON;
 
------------------------------------
---drop package cwPack1;
------Package body-----
+
+begin
+--system.cwPackadm.showallclients;
+--system.cwPackadm.addvacancy('Master');
+--system.cwPackadm.showallvacancy;
+----------fullname, id_vac, passportseria,passportnumber,adress,phonenumber,startworkdate--
+--system.cwPackadm.addemp('Petrov Mihail Ivanovich', 1,'2827829M823181', 'HB988981218','Yakuba Kolasa 2B, 122','+37626722148', '3.12.2003', 'Login13','Pa');
+--system.cwPackadm.showallemp;
+--------in waiting, in processing, done 
+--system.cwPackadm.addstatus('in done');
+--system.cwPackadm.showallorderstatus;
+end;
+
+--show all client info
+DECLARE
+  C_EMP SYS_REFCURSOR;
+  TYPE new_type IS RECORD(id_client number, fullname nvarchar2(150), adress nvarchar2(150),phonenumber nvarchar2(140));
+  L_REC new_type; --instead of using %ROWTYPE, use the declared type
+BEGIN
+  system.cwPackadm.GET(C_EMP);
+  LOOP
+ FETCH c_emp INTO l_rec;
+ EXIT WHEN c_emp%NOTFOUND;
+
+     dbms_output.put_line(l_rec.id_client|| ' ' ||l_rec. fullname|| ' ' ||l_rec.adress|| ' ' ||l_rec.phonenumber );
+ END LOOP;
+
+CLOSE c_emp;
+END;
+
+begin
+system.cwPackadm.importXmlDataFromEmployee;
+system.cwPackadm.importxmldatafromcomponents;
+end;
+
+begin
+system.cwPackadm.exportxmltoclients;
+end;
+
+
+---Id_Com Id_maker
+begin
+system.cwPackadm.addComponentsOrder(1,1);
+end;
+
+
+begin
+--add componentsorder IdComp from Components and Id_Make from Makers
+System.cwpack1.addComponents(1,1);
+end;
+
+---------packadminedn---------------------------------------------
+---------------------------------------------------------------------
+-----------------------------------------------------------------
+
+
 
 
 create or replace package body cwPack1
@@ -599,167 +769,35 @@ end addComponentsOrder;
 end cwPack1;
 
 
----create dir for export--------------------
-CREATE OR REPLACE DIRECTORY  DIR AS 'C:\XML\IMPORT';
-
-
-select directory_name from all_directories where directory_path = 'C:\XML\IMPORT'
-
-
-
-begin
-cwpack1.importXmlDataFromClients;
-cwpack1.importxmldatafromcomponents;
-end;
-
-begin
-cwpack1.exportxmltoclients;
-end;
------index
-SELECT * FROM Client use INDEX(SYS_C009858);
-
-
----------
-SELECT count(*) FROM client
-
-
-delete from  equipment
-select * from equipment;
-select * from COrder;
-select * from OrderStatus;
-select * from Client
-select * from EMPLOYEE where id_emp = 3
-select * from OrderStatus
-select * from makers
-select * from ShopOfComponents
-
-
-
-
-select fullname, id_vac, passportseria,passportnumber,adress,phonenumber,to_char(startworkdate, 'DD-MM-YYYY') from employee;
---------------------------end body---------------------
 SET SERVEROUTPUT ON;
-begin
---cwpack1.addclient('Bikov Nikolay Ivanovich', 'street Leonida Bedy 1B, 182', '+375336201823', 'niclambada1','Password1');
---cwpack1.showallclients;
---cwpack1.addvacancy('Engineer');
---cwpack1.showallvacancy;
-----------fullname, id_vac, passportseria,passportnumber,adress,phonenumber,startworkdate--
---cwpack1.addemp('Petrov Mihail Ivanovich', 1,'2827829M823181', 'HB988981218','Yakuba Kolasa 2B, 122','+37626722148', '3.12.2003', 'Login13','Pa');
---cwpack1.showallemp;
---------in waiting, in processing, done 
---cwpack1.addstatus('in done');
-cwpack1.showallorderstatus;
-end;
-
-
-
-DECLARE
-  C_EMP SYS_REFCURSOR;
-  TYPE new_type IS RECORD(id_client number, fullname nvarchar2(150), adress nvarchar2(150),phonenumber nvarchar2(140));
-  L_REC new_type; --instead of using %ROWTYPE, use the declared type
-BEGIN
-  cwpack1.GET(C_EMP);
-  LOOP
- FETCH c_emp INTO l_rec;
- EXIT WHEN c_emp%NOTFOUND;
-
-     dbms_output.put_line(l_rec.id_client|| ' ' ||l_rec. fullname|| ' ' ||l_rec.adress|| ' ' ||l_rec.phonenumber );
- END LOOP;
-
-CLOSE c_emp;
-END;
-
-select Count(*) from client where login='Sotr4' and Passw='Password1'
-select * from employee
-
---1 - MAKERS ID
-begin
-cwpack1.addEquipment('Name', '123123','descr of toruble', 1, 'model');
-end;
-
----eq_id cl_id em_id stat_id date
-begin
-cwpack1.makeOrder(1,1,1,1,'10.02.2021')
-end;
-
----Id_Com Id_maker
-begin
-cwpack1.addComponentsOrder(1,1);
-end;
-
---change orstatus int Corder idor
-begin 
-cwpack1.changeOrderStatus(1);
-end;
 
 declare
 ct number;
 begin
-cwpack1.getCountOfClientWithSameLogin('Login', ct);
+System.cwpack1.getCountOfClientWithSameLogin('Login', ct);
   dbms_output.put_line('count = '||ct);
 end;
 
-declare
-n number;
 begin
-cwpack1.getLastMakers(n);
-dbms_output.put_line('Last Id Maker: ' ||n);
+--System.cwpack1.addclient('Bikov Nikolay Ivanovich', 'street Leonida Bedy 1B, 182', '+375336201823', 'niclambada1','Password1');
 end;
 
---change corder status and maker idor idmk
-begin
-cwpack1.changeStatusAndMakers(1,1);
-end;
-
-begin
-cwpack1.addMakers('repair type', 100, '10.02.2021');
-end;
-
---last
-declare
-ct3 number;
- BEGIN
-  cwpack1.getEpuipmentIdForOrder(ct3);
-  dbms_output.put_line('ID_Eqp = '||ct3);
-end;
 
 declare
 ct3 number;
  BEGIN
-  cwpack1.checkClientAccount('Sotr4', 'Password1',ct3);
+  System.cwpack1.checkClientAccount('Sotr4', 'Password1',ct3);
   dbms_output.put_line('count = '||ct3);
 end;
 
-declare
-ct2 number;
-begin
-System.cwpack2.checkEmpAccount('Sotr4','Password1',ct2);
-dbms_output.put_line('count = '||ct2);
-end;
 
 declare 
 fio nvarchar2(50);
 idd number;
 begin
-cwpack1.getClienIdAndName('Login','Passw', idd, fio);
+System.cwpack1.getClienIdAndName('Login','Passw', idd, fio);
 dbms_output.put_line('id = '||idd||' fio '|| fio);
 end;
-
-begin
---add componentsorder IdComp from Components and Id_Make from Makers
-cwpack1.addComponents(1,1);
-end;
-
-declare 
-fio nvarchar2(50);
-idd number;
-begin
-SYSTEM.cwpack2.getCurrentEmplIdAndName('Sotr4','Password1', idd, fio);
-dbms_output.put_line('id = '||idd||' fio '|| fio);
-end;
-
-select * from client where   Passw ='Password1'
 
 
 declare
@@ -781,8 +819,25 @@ begin
 end;
 
 
+--1 - MAKERS ID
+begin
+System.cwpack1.addEquipment('Name', '123123','descr of toruble', 1, 'model');
+end;
 
 
+--last eqp id
+declare
+ct3 number;
+ BEGIN
+  System.cwpack1.getEpuipmentIdForOrder(ct3);
+  dbms_output.put_line('ID_Eqp = '||ct3);
+end;
+
+
+---eq_id cl_id em_id stat_id date
+begin
+System.cwpack1.makeOrder(1,1,1,1,'10.02.2021')
+end;
 
 
 declare 
@@ -801,48 +856,13 @@ begin
     end if;    
 end;
 
-set serveroutput on
-
-declare 
-cur sys_refcursor;
-   TYPE zz1  IS RECORD(id_or number, orderdate date, ename nvarchar2(150), Description nvarchar2(150), statusname nvarchar2(150), Fullname nvarchar2(150));  -- обязательно надо определить, куда фетчим, это самый скользкий момент
-   zz zz1;
-begin
-   cwpack1.getClientOrdersForEmployee(3, cur);
-     loop
-      fetch cur into zz;
-      EXIT when cur%notfound;
-       dbms_output.put_line('Id order: ' || zz.id_or ||' Дата Заказа: ' || zz.orderdate|| ' Наименование оборудования: ' || zz.ename || ' Имя исполнителя: ' ||zz.FULLNAME || ' Статус заказа: ' || zz.statusname|| ' Описание поломки: ' || zz.Description);
-    end loop;
-  if cur%isopen then
-       close cur;
-    end if;    
-end;
-
-
-
-declare 
-cur sys_refcursor;
-   TYPE zz1  IS RECORD(id_or number, orderdate date, ename nvarchar2(150), Description nvarchar2(150), statusname nvarchar2(150), Fullname nvarchar2(150),typeofrepair   nvarchar2(150), COSTS number, comname nvarchar2(150));  -- обязательно надо определить, куда фетчим, это самый скользкий момент
-   zz zz1;
-begin
-   System.cwpack1.getOrdersHistoryForEmployee(3, cur);
-     loop
-      fetch cur into zz;
-      EXIT when cur%notfound;
-       dbms_output.put_line('Id order: ' || zz.id_or ||' Дата Заказа: ' || zz.orderdate|| ' Наименование оборудования: ' || zz.ename || ' Имя исполнителя: ' ||zz.FULLNAME || ' Тип ремонта: ' || zz.typeofrepair || ' Статус заказа: ' || zz.statusname|| ' Описание поломки: ' || zz.Description || ' Стоимость: ' || zz.COSTS || ' Наименование детали: ' || zz.comname);
-    end loop;
-  if cur%isopen then
-       close cur;
-    end if;    
-end;
 
 declare 
 cur sys_refcursor;
    TYPE zz1  IS RECORD(id_or number, orderdate date, ename nvarchar2(150), FULLNAME nvarchar2(150), statusname nvarchar2(150), costs number);  -- обязательно надо определить, куда фетчим, это самый скользкий момент
    zz zz1;
 begin
-   cwpack1.showHistoryClientOrders(1, cur);
+   System.cwpack1.showHistoryClientOrders(1, cur);
      loop
       fetch cur into zz;
       EXIT when cur%notfound;
@@ -852,55 +872,18 @@ begin
        close cur;
     end if;    
 end;
+-------------------end Client Package-------------------------
+--------------------------------------------------------------
+--------------------------------------------------------------
 
-set serveroutput on
---todo order for employee
-declare 
-cur sys_refcursor;
-   TYPE zz1  IS RECORD(id_or number, orderdate date, ename nvarchar2(150), Description nvarchar2(150), statusname nvarchar2(150), Fullname nvarchar2(150));  -- обязательно надо определить, куда фетчим, это самый скользкий момент
-   zz zz1;
-begin
-   cwpack1.getClientOrdersForEmployeeToDo(3, cur);
-     loop
-      fetch cur into zz;
-      EXIT when cur%notfound;
-       dbms_output.put_line('Id order: ' || zz.id_or ||' Дата Заказа: ' || zz.orderdate|| ' Наименование оборудования: ' || zz.ename || ' Имя исполнителя: ' ||zz.FULLNAME || ' Статус заказа: ' || zz.statusname|| ' Описание поломки: ' || zz.Description);
-    end loop;
-  if cur%isopen then
-       close cur;
-    end if;    
-end;
-
-set serveroutput on
-declare
-cur sys_refcursor;
-   TYPE zz1  IS RECORD(Id_com number, comname nvarchar2(150), price number);  -- обязательно надо определить, куда фетчим, это самый скользкий момент
-   zz zz1;
-    -- можно явно задать zz в виде записи (record)
-begin 
-     system.cwpack2.getComponentsNameAndId(cur);
-     loop
-      fetch cur into zz;
-     
-      EXIT when cur%notfound;
-       dbms_output.put_line('Id: '||zz.Id_com||' Name: ' || zz.comname||' price: '||zz.price);
-    end loop;
-  if cur%isopen then
-       close cur;
-    end if;    
-end;
+---create dir for export--------------------
+CREATE OR REPLACE DIRECTORY  DIR AS 'C:\XML\IMPORT';
 
 
-select * from employee;
-select Id_Client   from Client where Login='Login' and Passw='Passw';
-select FullName from Client where Login='Login' and Passw='Passw';
+select directory_name from all_directories where directory_path = 'C:\XML\IMPORT'
 
 
+---select fullname, id_vac, passportseria,passportnumber,adress,phonenumber,to_char(startworkdate, 'DD-MM-YYYY') from employee;
+--------------------------end body---------------------
 
 
-
-select * from ComponentsOrder;
-select * from sh
-select * from corder where id_or=124
-select * from corder
-select * from makers where id_make =42
