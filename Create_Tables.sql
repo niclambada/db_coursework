@@ -131,171 +131,37 @@ create table COrder
 create or replace package cwPack1
 as
 procedure addClient(fullName nvarchar2, Adress nvarchar2, PhoneNumber nvarchar2, Login nvarchar2, Passw nvarchar2);
-procedure showAllClients;
-procedure addVacancy(vacName nvarchar2);
-procedure showAllVacancy;
-procedure addEmp(fullName nvarchar2, Id_vac  number, PassportSeria nvarchar2, PassportNumber nvarchar2,  Adress nvarchar2,  PhoneNumber nvarchar2, StartWorkDate date,  Login nvarchar2, Passw nvarchar2);
-procedure showAllEmp;
-procedure addStatus(stName nvarchar2);
-procedure showAllOrderStatus;
-PROCEDURE GET (ConscriptsOut OUT sys_refcursor);--get all clients
 procedure getCountOfClientWithSameLogin(checklogin nvarchar2, results OUT number);
 procedure checkClientAccount(lg nvarchar2, ps nvarchar2, results out number);
-procedure checkEmpAccount(login1 nvarchar2, pass1 nvarchar2, results out number);
 procedure getClienIdAndName(lgin nvarchar2, psd nvarchar2, id_ret out number, fio out nvarchar2);
-procedure getCurrentEmplIdAndName(lgine nvarchar2, psde nvarchar2, id_rete out number, fioe out nvarchar2);
 procedure getNameAndIdEmp(p_cursor IN OUT NOCOPY SYS_REFCURSOR); 
 procedure addEquipment(eqname nvarchar2, sernum nvarchar2, descr nvarchar2, eqmakers nvarchar2, eqmodel nvarchar2);
 procedure makeOrder(eq_Id number,client_Id number, empl_Id number, status_id number, dateO date);
 procedure getEpuipmentIdForOrder(results out number);
 procedure showCurrentClientOrders(cl_id number, p_cursor IN OUT NOCOPY SYS_REFCURSOR);
-procedure addComponents(componname nvarchar2, compcost number);
-procedure getComponentsNameAndId(p_cursor IN OUT NOCOPY SYS_REFCURSOR);
-procedure getClientOrdersForEmployee(eplid number, p_cursor IN OUT NOCOPY SYS_REFCURSOR);
-procedure addMakers(repairtype nvarchar2, price number, repairdate date);
 procedure addComponentsOrder(idcomp number, idmaker number);
-procedure getLastMakers(idmk out number);
-procedure changeStatusAndMakers(ior number, idmk number);
-procedure changeOrderStatus(idor number);
-procedure getClientOrdersForEmployeeToDo(eplid number, p_cursor IN OUT NOCOPY SYS_REFCURSOR);
 procedure showHistoryClientOrders(cl_id number, p_cursor IN OUT NOCOPY SYS_REFCURSOR);
-procedure getOrdersHistoryForEmployee(eplid number, p_cursor IN OUT NOCOPY SYS_REFCURSOR);
-procedure importXmlDataFromClients;
-procedure importXmlDataFromComponents;
-procedure exportXmlToClients;
 end cwPack1;
 
+--grant execute on System.cwPack2 to C##Employee
 
-
-  select * from makers
-
------------------------------------
---drop package cwPack1;
------Package body-----
-
-
-create or replace package body cwPack1
-  as 
-procedure addClient(fullName nvarchar2, Adress nvarchar2, PhoneNumber nvarchar2, Login nvarchar2, Passw nvarchar2)
+create or replace package cwPack2
 as
-begin
-insert into Client(fullname, adress,phonenumber, login, passw) values(fullName, Adress, PhoneNumber, Login, Passw);
-commit;
-      exception
-when others then
-   raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
-end addClient ;
---------------------------------------------------------------------------------------------------------------
-procedure showAllClients
-  as
-  begin
-  for client in (select id_client, fullname, adress,phonenumber from Client)
-loop
- dbms_output.put_line(client.id_client|| ' ' ||client. fullname|| ' ' ||client.adress|| ' ' ||client.phonenumber); 
- end loop;
- exception
-when others then
-   raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
-end showAllClients ;
------------------------------------------------------------
-procedure addVacancy(vacName nvarchar2)
-  as
-  begin 
-    insert into Vacancy(vacancyname) values(vacName);
-    exception
-when others then
-   raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
-    end addVacancy;
+procedure checkEmpAccount(login1 nvarchar2, pass1 nvarchar2, results out number);
+procedure getCurrentEmplIdAndName(lgine nvarchar2, psde nvarchar2, id_rete out number, fioe out nvarchar2);
+procedure getComponentsNameAndId(p_cursor IN OUT NOCOPY SYS_REFCURSOR);
+procedure getClientOrdersForEmployeeToDo(eplid number, p_cursor IN OUT NOCOPY SYS_REFCURSOR);
+procedure changeOrderStatus(idor number);
+procedure getClientOrdersForEmployee(eplid number, p_cursor IN OUT NOCOPY SYS_REFCURSOR);
+procedure addMakers(repairtype nvarchar2, price number, repairdate date);
+procedure getLastMakers(idmk out number);
+procedure changeStatusAndMakers(ior number, idmk number);
+procedure getOrdersHistoryForEmployee(eplid number, p_cursor IN OUT NOCOPY SYS_REFCURSOR);
+procedure addComponentsOrder(idcomp number, idmaker number);
+end cwPack2;
 
-procedure showAllVacancy
-  as
-begin
-  for vac in (select * from Vacancy)
-    loop  
-  dbms_output.put_line(vac.Id_Vac|| ' ' ||vac.VacancyName); 
-  end loop;
-  exception
-when others then
-   raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
-  end showAllVacancy;
- 
-procedure addEmp(fullName nvarchar2, Id_vac  number, PassportSeria nvarchar2, PassportNumber nvarchar2,  Adress nvarchar2,  PhoneNumber nvarchar2, StartWorkDate date, Login nvarchar2, Passw nvarchar2)
-    as
-  begin 
-      insert into Employee(fullname, id_vac, passportseria,passportnumber,adress,phonenumber,startworkdate, login, passw) values(fullName, Id_vac, PassportSeria, PassportNumber,  Adress,  PhoneNumber, StartWorkDate, Login, Passw); 
-      commit;
-    exception
-when others then
-   raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
-    end addEmp;
-  
-procedure showAllEmp
-  as
-begin
-  for emp in (select fullname, id_vac, passportseria,passportnumber,adress,phonenumber,startworkdate from Employee)
-    loop
-     dbms_output.put_line(emp.fullname|| ' ' ||emp.passportseria|| ' ' ||emp.passportnumber|| ' ' ||emp.adress|| ' ' ||emp.phonenumber|| ' ' ||to_char(emp.startworkdate,'DD-MM-YYYY')); 
-  end loop;
-  exception
-when others then
-   raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
-  end showAllEmp;
-
- procedure addStatus(stName nvarchar2)
-  as
- begin
-  insert into OrderStatus(StatusName) values(stName);
-  commit;
-  exception
-when others then
-   raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
-  end addStatus;
-  
- 
- procedure showAllOrderStatus
-  as
-begin
-for status in (select StatusName from OrderStatus)
-    loop
-     dbms_output.put_line(status.statusName); 
-  end loop;
- exception
-when others then
-   raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
-  end showAllOrderStatus;
-  
-  
-PROCEDURE GET (ConscriptsOut OUT sys_refcursor)
- as
-BEGIN
-
- OPEN ConscriptsOut FOR
-   SELECT   id_client, fullname, adress,phonenumber
-  FROM  Client; 
- 
- end GET;
-  
-procedure getCountOfClientWithSameLogin(checklogin nvarchar2, results OUT number)
+create or replace package body cwPack2
 as
-
-begin
- results:=0;
-select count(*) into results from Client where Login=checklogin;
-exception
-when others then
-   raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
-end getCountOfClientWithSameLogin;
-
-procedure checkClientAccount(lg nvarchar2, ps nvarchar2, results out number)
-  as
-begin 
-results:=0;
-select Count(*) into results from client where Login=lg and Passw=ps;
-  exception
-when others then
-   raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
-end checkClientAccount;
-
 procedure checkEmpAccount(login1 nvarchar2, pass1 nvarchar2, results out number)
   as
  begin 
@@ -305,16 +171,6 @@ select count(*) into results from employee where (Login=login1 and Passw=pass1);
 when others then
    raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
 end checkEmpAccount;
-
-procedure getClienIdAndName(lgin nvarchar2, psd nvarchar2, id_ret out number, fio out nvarchar2)
-as
-begin
-select Id_Client  into id_ret from Client where Login=lgin and Passw=psd;
-select FullName into fio from Client where Login=lgin and Passw=psd;
-exception
-when others then
-   raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
-end getClienIdAndName;
 
 procedure getCurrentEmplIdAndName(lgine nvarchar2, psde nvarchar2, id_rete out number, fioe out nvarchar2)
 as
@@ -326,85 +182,6 @@ when others then
    raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
 end getCurrentEmplIdAndName;
 
-procedure getNameAndIdEmp(p_cursor IN OUT NOCOPY SYS_REFCURSOR)
-as  
-begin
-OPEN p_cursor FOR 
-select Id_emp, fullName  from employee;
- end getNameAndIdEmp; 
-
-procedure addEquipment(eqname nvarchar2, sernum nvarchar2, descr nvarchar2, eqmakers nvarchar2, eqmodel nvarchar2)
-as
-begin
-insert into equipment(Ename, SeriaNumber, Description, Maker, EModel) values(eqname,sernum,  descr, eqmakers, eqmodel);
- commit;
-    exception
-when others then
-   raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
-end addEquipment;
-
-procedure getEpuipmentIdForOrder(results out number)
-as
-begin 
-results:=0;
-select max(id_eqp) into results from equipment;
-end getEpuipmentIdForOrder;
-
-procedure makeOrder(eq_Id number,client_Id number, empl_Id number, status_id number,  dateO date)
-as
-begin
-insert into corder(Id_eqp, Id_Client, Id_emp, Id_Status, OrderDate) values(eq_Id ,client_Id , empl_Id , status_id ,  dateO );
-commit;
-    exception
-when others then
-   raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
-end makeOrder;
-
-procedure showCurrentClientOrders(cl_id number, p_cursor IN OUT NOCOPY SYS_REFCURSOR)
-as
-begin
-OPEN p_cursor FOR 
-  select distinct Corder.id_or, corder.orderdate as Дата_Заказа, equipment.ename as Наименование_оборудования, Employee.FULLNAME as Имя_исполнителя, OrderStatus.statusname as Статус_заказа
-                                                    from Corder
-                                                    inner join Client on Corder.Id_client = cl_id
-                                                    inner join  equipment on  corder.id_eqp = equipment.Id_eqp
-                                                    inner join Employee on Corder.Id_emp = Employee.Id_Emp
-                                                    inner join OrderStatus on Corder.Id_status = OrderStatus.Id_order
-                                                    where Corder.Id_status=1 or Corder.Id_status=2;
-exception
-when others then
-   raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
-end showCurrentClientOrders;
-
-
-procedure showHistoryClientOrders(cl_id number, p_cursor IN OUT NOCOPY SYS_REFCURSOR)
-as
-begin
-OPEN p_cursor FOR 
-  select distinct Corder.id_or, corder.orderdate as Дата_Заказа, equipment.ename as Наименование_оборудования, Employee.FULLNAME as Имя_исполнителя, OrderStatus.statusname as Статус_заказа, makers.COSTS as Стоимость
-                                                    from Corder
-                                                    inner join Client on Corder.Id_client = cl_id
-                                                    inner join  equipment on  corder.id_eqp = equipment.Id_eqp
-                                                    inner join Employee on Corder.Id_emp = Employee.Id_Emp
-                                                    inner join OrderStatus on Corder.Id_status = OrderStatus.Id_order
-                                                     inner join Makers on COrder.ID_MAKE = makers.ID_MAKE
-                                                    where Corder.Id_status=3;
-exception
-when others then
-   raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
-end showHistoryClientOrders;
-
-
-procedure addComponents(componname nvarchar2, compcost number)
-as
-begin 
-insert into ShopOfComponents (ComName, Price) values(componname, compcost);
-commit;
-     exception
-when others then
-   raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
-end addComponents;
-
 procedure getComponentsNameAndId(p_cursor IN OUT NOCOPY SYS_REFCURSOR)
 as
 begin
@@ -414,23 +191,6 @@ exception
 when others then
    raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
 end getComponentsNameAndId;
-
-
-procedure getClientOrdersForEmployee(eplid number, p_cursor IN OUT NOCOPY SYS_REFCURSOR)
-as
-begin
-OPEN p_cursor FOR 
- select distinct Corder.id_or, corder.orderdate as Дата_Заказа, equipment.ename as Наименование_оборудования, equipment.Description as Описание_поломки, OrderStatus.statusname as Статус_заказа, Client.Fullname as Имя_Клиента
-                                                    from Corder
-                                                    inner join Client on Corder.Id_client = Client.Id_client
-                                                    inner join equipment on  corder.id_eqp = equipment.Id_eqp
-                                                    inner join Employee on Corder.Id_emp = eplid
-                                                   inner join OrderStatus on  Corder.Id_Status= OrderStatus.ID_order
-                                                    where Corder.Id_Status=2;
- exception
-when others then
-   raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
-end getClientOrdersForEmployee;
 
 procedure getClientOrdersForEmployeeToDo(eplid number, p_cursor IN OUT NOCOPY SYS_REFCURSOR)
 as
@@ -448,26 +208,30 @@ when others then
    raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
 end getClientOrdersForEmployeeToDo;
 
+procedure changeOrderStatus(idor number)
+as
+begin
+update  COrder set Id_Status=2 where Id_Or=idor;
+exception
+when others then
+   raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
+end changeOrderStatus;
 
-procedure getOrdersHistoryForEmployee(eplid number, p_cursor IN OUT NOCOPY SYS_REFCURSOR)
+procedure getClientOrdersForEmployee(eplid number, p_cursor IN OUT NOCOPY SYS_REFCURSOR)
 as
 begin
 OPEN p_cursor FOR 
- select distinct Corder.id_or, corder.orderdate as Дата_Заказа, equipment.ename as Наименование_оборудования, equipment.Description as Описание_поломки, OrderStatus.statusname as Статус_заказа, Client.Fullname as Имя_Клиента, makers.typeofrepair as Тип_Ремонта, makers.COSTS as Стоимость, ShopOfComponents.comname as Детали  
+ select distinct Corder.id_or, corder.orderdate as Дата_Заказа, equipment.ename as Наименование_оборудования, equipment.Description as Описание_поломки, OrderStatus.statusname as Статус_заказа, Client.Fullname as Имя_Клиента
                                                     from Corder
                                                     inner join Client on Corder.Id_client = Client.Id_client
                                                     inner join equipment on  corder.id_eqp = equipment.Id_eqp
                                                     inner join Employee on Corder.Id_emp = eplid
-                                                    inner join OrderStatus on  Corder.Id_Status= OrderStatus.ID_order
-                                                    inner join Makers on COrder.ID_MAKE = makers.ID_MAKE
-                                                    inner join componentsorder on COrder.ID_MAKE = componentsorder.ID_MAKE
-                                                    inner join ShopOfComponents on ShopOfComponents.ID_Com = componentsorder.ID_Com
-                                                    where Corder.Id_Status=3;
-                                                  
+                                                   inner join OrderStatus on  Corder.Id_Status= OrderStatus.ID_order
+                                                    where Corder.Id_Status=2;
  exception
 when others then
    raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
-end getOrdersHistoryForEmployee;
+end getClientOrdersForEmployee;
 
 procedure addMakers(repairtype nvarchar2, price number, repairdate date)
 as
@@ -478,16 +242,6 @@ exception
 when others then
    raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
 end addMakers;
-
-procedure addComponentsOrder(idcomp number, idmaker number)
-as
-begin 
-insert into ComponentsOrder(Id_Com, Id_make) values(idcomp, idmaker);
-commit;
-exception
-when others then
-   raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
-end addComponentsOrder;
 
 procedure getLastMakers(idmk out number)
 as
@@ -508,16 +262,143 @@ when others then
    raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
 end changeStatusAndMakers;
 
-procedure changeOrderStatus(idor number)
+procedure getOrdersHistoryForEmployee(eplid number, p_cursor IN OUT NOCOPY SYS_REFCURSOR)
 as
 begin
-update  COrder set Id_Status=2 where Id_Or=idor;
+OPEN p_cursor FOR 
+ select distinct Corder.id_or, corder.orderdate as Дата_Заказа, equipment.ename as Наименование_оборудования, equipment.Description as Описание_поломки, OrderStatus.statusname as Статус_заказа, Client.Fullname as Имя_Клиента, makers.typeofrepair as Тип_Ремонта, makers.COSTS as Стоимость, ShopOfComponents.comname as Детали  
+                                                    from Corder
+                                                    inner join Client on Corder.Id_client = Client.Id_client
+                                                    inner join equipment on  corder.id_eqp = equipment.Id_eqp
+                                                    inner join Employee on Corder.Id_emp = eplid
+                                                    inner join OrderStatus on  Corder.Id_Status= OrderStatus.ID_order
+                                                    inner join Makers on COrder.ID_MAKE = makers.ID_MAKE
+                                                    left join componentsorder on COrder.ID_MAKE = componentsorder.ID_MAKE
+                                                    left join ShopOfComponents on ShopOfComponents.ID_Com = componentsorder.ID_Com
+                                                    where Corder.Id_Status=3;
+                                                  
+ exception
+when others then
+   raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
+end getOrdersHistoryForEmployee;
+
+procedure addComponentsOrder(idcomp number, idmaker number)
+as
+begin 
+insert into ComponentsOrder(Id_Com, Id_make) values(idcomp, idmaker);
+commit;
 exception
 when others then
    raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
-end changeOrderStatus;
+end addComponentsOrder;
+end cwPack2;
+
+
+create or replace package cwPackadm
+as
+procedure showAllClients;
+procedure addVacancy(vacName nvarchar2);
+procedure showAllVacancy;
+procedure addEmp(fullName nvarchar2, Id_vac  number, PassportSeria nvarchar2, PassportNumber nvarchar2,  Adress nvarchar2,  PhoneNumber nvarchar2, StartWorkDate date,  Login nvarchar2, Passw nvarchar2);
+procedure showAllEmp;
+procedure addStatus(stName nvarchar2);
+procedure showAllOrderStatus;
+PROCEDURE GET (ConscriptsOut OUT sys_refcursor);--get all clients
+procedure importXmlDataFromClients;
+procedure importXmlDataFromComponents;
+procedure exportXmlToClients;
+procedure addComponents(componname nvarchar2, compcost number);
+end cwPackadm;
+
+
+create or replace package body cwPackadm
+as
+procedure showAllClients
+  as
+  begin
+  for client in (select id_client, fullname, adress,phonenumber from Client)
+loop
+ dbms_output.put_line(client.id_client|| ' ' ||client. fullname|| ' ' ||client.adress|| ' ' ||client.phonenumber); 
+ end loop;
+ exception
+when others then
+   raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
+end showAllClients ;
+procedure addVacancy(vacName nvarchar2)
+  as
+  begin 
+    insert into Vacancy(vacancyname) values(vacName);
+    exception
+when others then
+   raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
+    end addVacancy;
+
+procedure showAllVacancy
+  as
+begin
+  for vac in (select * from Vacancy)
+    loop  
+  dbms_output.put_line(vac.Id_Vac|| ' ' ||vac.VacancyName); 
+  end loop;
+  exception
+when others then
+   raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
+  end showAllVacancy;
+
+procedure addEmp(fullName nvarchar2, Id_vac  number, PassportSeria nvarchar2, PassportNumber nvarchar2,  Adress nvarchar2,  PhoneNumber nvarchar2, StartWorkDate date, Login nvarchar2, Passw nvarchar2)
+    as
+  begin 
+      insert into Employee(fullname, id_vac, passportseria,passportnumber,adress,phonenumber,startworkdate, login, passw) values(fullName, Id_vac, PassportSeria, PassportNumber,  Adress,  PhoneNumber, StartWorkDate, Login, Passw); 
+      commit;
+    exception
+when others then
+   raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
+    end addEmp;
+
+procedure showAllEmp
+  as
+begin
+  for emp in (select fullname, id_vac, passportseria,passportnumber,adress,phonenumber,startworkdate from Employee)
+    loop
+     dbms_output.put_line(emp.fullname|| ' ' ||emp.passportseria|| ' ' ||emp.passportnumber|| ' ' ||emp.adress|| ' ' ||emp.phonenumber|| ' ' ||to_char(emp.startworkdate,'DD-MM-YYYY')); 
+  end loop;
+  exception
+when others then
+   raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
+  end showAllEmp;
+
+procedure addStatus(stName nvarchar2)
+  as
+ begin
+  insert into OrderStatus(StatusName) values(stName);
+  commit;
+  exception
+when others then
+   raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
+  end addStatus;
+
+procedure showAllOrderStatus
+  as
+begin
+for status in (select StatusName from OrderStatus)
+    loop
+     dbms_output.put_line(status.statusName); 
+  end loop;
+ exception
+when others then
+   raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
+  end showAllOrderStatus;
+
+PROCEDURE GET (ConscriptsOut OUT sys_refcursor)
+ as
+BEGIN
+
+ OPEN ConscriptsOut FOR
+   SELECT   id_client, fullname, adress,phonenumber
+  FROM  Client; 
  
- 
+ end GET;
+
 procedure importXmlDataFromClients
 as
 F UTL_FILE.FILE_TYPE;
@@ -575,6 +456,145 @@ when others then
    raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
       
 end exportXmlToClients;
+
+procedure addComponents(componname nvarchar2, compcost number)
+as
+begin 
+insert into ShopOfComponents (ComName, Price) values(componname, compcost);
+commit;
+     exception
+when others then
+   raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
+end addComponents;
+
+end cwPackadm;
+
+  select * from makers
+
+-----------------------------------
+--drop package cwPack1;
+-----Package body-----
+
+
+create or replace package body cwPack1
+  as 
+procedure addClient(fullName nvarchar2, Adress nvarchar2, PhoneNumber nvarchar2, Login nvarchar2, Passw nvarchar2)
+as
+begin
+insert into Client(fullname, adress,phonenumber, login, passw) values(fullName, Adress, PhoneNumber, Login, Passw);
+commit;
+      exception
+when others then
+   raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
+end addClient ;
+
+procedure getCountOfClientWithSameLogin(checklogin nvarchar2, results OUT number)
+as
+
+begin
+ results:=0;
+select count(*) into results from Client where Login=checklogin;
+exception
+when others then
+   raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
+end getCountOfClientWithSameLogin;
+
+procedure checkClientAccount(lg nvarchar2, ps nvarchar2, results out number)
+  as
+begin 
+results:=0;
+select Count(*) into results from client where Login=lg and Passw=ps;
+  exception
+when others then
+   raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
+end checkClientAccount;
+
+procedure getClienIdAndName(lgin nvarchar2, psd nvarchar2, id_ret out number, fio out nvarchar2)
+as
+begin
+select Id_Client  into id_ret from Client where Login=lgin and Passw=psd;
+select FullName into fio from Client where Login=lgin and Passw=psd;
+exception
+when others then
+   raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
+end getClienIdAndName;
+
+procedure getNameAndIdEmp(p_cursor IN OUT NOCOPY SYS_REFCURSOR)
+as  
+begin
+OPEN p_cursor FOR 
+select Id_emp, fullName  from employee;
+ end getNameAndIdEmp; 
+
+procedure addEquipment(eqname nvarchar2, sernum nvarchar2, descr nvarchar2, eqmakers nvarchar2, eqmodel nvarchar2)
+as
+begin
+insert into equipment(Ename, SeriaNumber, Description, Maker, EModel) values(eqname,sernum,  descr, eqmakers, eqmodel);
+ commit;
+    exception
+when others then
+   raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
+end addEquipment;
+
+procedure getEpuipmentIdForOrder(results out number)
+as
+begin 
+results:=0;
+select max(id_eqp) into results from equipment;
+end getEpuipmentIdForOrder;
+
+procedure makeOrder(eq_Id number,client_Id number, empl_Id number, status_id number,  dateO date)
+as
+begin
+insert into corder(Id_eqp, Id_Client, Id_emp, Id_Status, OrderDate) values(eq_Id ,client_Id , empl_Id , status_id ,  dateO );
+commit;
+    exception
+when others then
+   raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
+end makeOrder;
+
+procedure showCurrentClientOrders(cl_id number, p_cursor IN OUT NOCOPY SYS_REFCURSOR)
+as
+begin
+OPEN p_cursor FOR 
+  select distinct Corder.id_or, corder.orderdate as Дата_Заказа, equipment.ename as Наименование_оборудования, Employee.FULLNAME as Имя_исполнителя, OrderStatus.statusname as Статус_заказа
+                                                    from Corder
+                                                    inner join Client on Corder.Id_client = cl_id
+                                                    inner join  equipment on  corder.id_eqp = equipment.Id_eqp
+                                                    inner join Employee on Corder.Id_emp = Employee.Id_Emp
+                                                    inner join OrderStatus on Corder.Id_status = OrderStatus.Id_order
+                                                    where Corder.Id_status=1 or Corder.Id_status=2;
+exception
+when others then
+   raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
+end showCurrentClientOrders;
+
+procedure showHistoryClientOrders(cl_id number, p_cursor IN OUT NOCOPY SYS_REFCURSOR)
+as
+begin
+OPEN p_cursor FOR 
+  select distinct Corder.id_or, corder.orderdate as Дата_Заказа, equipment.ename as Наименование_оборудования, Employee.FULLNAME as Имя_исполнителя, OrderStatus.statusname as Статус_заказа, makers.COSTS as Стоимость
+                                                    from Corder
+                                                    inner join Client on Corder.Id_client = cl_id
+                                                    inner join  equipment on  corder.id_eqp = equipment.Id_eqp
+                                                    inner join Employee on Corder.Id_emp = Employee.Id_Emp
+                                                    inner join OrderStatus on Corder.Id_status = OrderStatus.Id_order
+                                                     inner join Makers on COrder.ID_MAKE = makers.ID_MAKE
+                                                    where Corder.Id_status=3;
+exception
+when others then
+   raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
+end showHistoryClientOrders;
+
+procedure addComponentsOrder(idcomp number, idmaker number)
+as
+begin 
+insert into ComponentsOrder(Id_Com, Id_make) values(idcomp, idmaker);
+commit;
+exception
+when others then
+   raise_application_error(-20001,'An error was encountered - '||SQLCODE||' -ERROR- '||SQLERRM);
+end addComponentsOrder;
 
 end cwPack1;
 
@@ -714,7 +734,7 @@ end;
 declare
 ct2 number;
 begin
-cwpack1.checkEmpAccount('Sotr4','Password1',ct2);
+System.cwpack2.checkEmpAccount('Sotr4','Password1',ct2);
 dbms_output.put_line('count = '||ct2);
 end;
 
@@ -735,7 +755,7 @@ declare
 fio nvarchar2(50);
 idd number;
 begin
-cwpack1.getCurrentEmplIdAndName('Sotr4','Password1', idd, fio);
+SYSTEM.cwpack2.getCurrentEmplIdAndName('Sotr4','Password1', idd, fio);
 dbms_output.put_line('id = '||idd||' fio '|| fio);
 end;
 
@@ -748,7 +768,7 @@ cur sys_refcursor;
    zz zz1;
     -- можно явно задать zz в виде записи (record)
 begin 
-     cwpack1.getNameAndIdEmp(cur);
+     System.cwpack1.getNameAndIdEmp(cur);
      loop
       fetch cur into zz;
      
@@ -770,7 +790,7 @@ cur sys_refcursor;
    TYPE zz1  IS RECORD(id_or number, orderdate date, ename nvarchar2(150), FULLNAME nvarchar2(150), statusname nvarchar2(150));  -- обязательно надо определить, куда фетчим, это самый скользкий момент
    zz zz1;
 begin
-   cwpack1.showCurrentClientOrders(1, cur);
+   System.cwpack1.showCurrentClientOrders(1, cur);
      loop
       fetch cur into zz;
       EXIT when cur%notfound;
@@ -806,7 +826,7 @@ cur sys_refcursor;
    TYPE zz1  IS RECORD(id_or number, orderdate date, ename nvarchar2(150), Description nvarchar2(150), statusname nvarchar2(150), Fullname nvarchar2(150),typeofrepair   nvarchar2(150), COSTS number, comname nvarchar2(150));  -- обязательно надо определить, куда фетчим, это самый скользкий момент
    zz zz1;
 begin
-   cwpack1.getOrdersHistoryForEmployee(3, cur);
+   System.cwpack1.getOrdersHistoryForEmployee(3, cur);
      loop
       fetch cur into zz;
       EXIT when cur%notfound;
@@ -833,6 +853,7 @@ begin
     end if;    
 end;
 
+set serveroutput on
 --todo order for employee
 declare 
 cur sys_refcursor;
@@ -850,14 +871,14 @@ begin
     end if;    
 end;
 
-
+set serveroutput on
 declare
 cur sys_refcursor;
    TYPE zz1  IS RECORD(Id_com number, comname nvarchar2(150), price number);  -- обязательно надо определить, куда фетчим, это самый скользкий момент
    zz zz1;
     -- можно явно задать zz в виде записи (record)
 begin 
-     cwpack1.getComponentsNameAndId(cur);
+     system.cwpack2.getComponentsNameAndId(cur);
      loop
       fetch cur into zz;
      
@@ -878,3 +899,8 @@ select FullName from Client where Login='Login' and Passw='Passw';
 
 
 
+select * from ComponentsOrder;
+select * from sh
+select * from corder where id_or=124
+select * from corder
+select * from makers where id_make =42

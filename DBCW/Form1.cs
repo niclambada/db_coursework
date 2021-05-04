@@ -70,7 +70,7 @@ namespace DBCW
         #endregion
         private void button1_Click_1(object sender, EventArgs e)
         {
-            string patern = @"^(\375|80)(29|25|44|33)(\d{3})(\d{2})(\d{2})$";
+            string patern = @"^(375|80)(29|25|44|33)(\d{3})(\d{2})(\d{2})$";
             registered.Visible = false;
             if (String.IsNullOrEmpty(fioBox1.Text))
             {
@@ -133,7 +133,7 @@ namespace DBCW
                // MessageBox.Show("Open1");
                 OracleCommand cmd = new OracleCommand();
                 cmd.Connection = conn;
-                cmd.CommandText = "cwpack1.getCountOfClientWithSameLogin";
+                cmd.CommandText = "System.cwpack1.getCountOfClientWithSameLogin";
                 cmd.CommandType = CommandType.StoredProcedure;
                 // Добавить параметр @p_Emp_Id и настроить его значение = 100.
                 cmd.Parameters.Add("checklogin", OracleDbType.NVarchar2).Value = login;
@@ -199,7 +199,7 @@ namespace DBCW
                // MessageBox.Show("Open1");
                 OracleCommand cmd = new OracleCommand();
                 cmd.Connection = conn;
-                cmd.CommandText = "cwpack1.addclient";
+                cmd.CommandText = "System.cwpack1.addclient";
                 cmd.CommandType = CommandType.StoredProcedure;
                 // Добавить параметр @p_Emp_Id и настроить его значение = 100.
                 cmd.Parameters.Add("fullName", OracleDbType.NVarchar2).Value = fio;
@@ -269,7 +269,7 @@ namespace DBCW
                 // MessageBox.Show("Open1");
                 OracleCommand cmd = new OracleCommand();
                 cmd.Connection = conn;
-                cmd.CommandText = "cwpack1.checkClientAccount";
+                cmd.CommandText = "System.cwpack1.checkClientAccount";
                 cmd.CommandType = CommandType.StoredProcedure;
                 // Добавить параметр @p_Emp_Id и настроить его значение = 100.
                 cmd.Parameters.Add("login", OracleDbType.NVarchar2).Value = login;
@@ -310,6 +310,11 @@ namespace DBCW
             Client user = new Client();
 
             return user;
+        }
+
+        private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

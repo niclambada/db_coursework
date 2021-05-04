@@ -51,7 +51,7 @@ namespace Employeer
                 // MessageBox.Show("Open1");
                 OracleCommand cmd = new OracleCommand();
                 cmd.Connection = conn;
-                cmd.CommandText = "cwpack1.getCurrentEmplIdAndName";
+                cmd.CommandText = "System.cwpack2.getCurrentEmplIdAndName";
                 cmd.CommandType = CommandType.StoredProcedure;
 
                 cmd.Parameters.Add("lgine", OracleDbType.NVarchar2).Value = Login;
@@ -91,7 +91,7 @@ namespace Employeer
 
                 OracleCommand cmd = new Oracle.ManagedDataAccess.Client.OracleCommand();
                 cmd.Connection = conn;
-                cmd.CommandText = "cwpack1.getClientOrdersForEmployeeToDo";
+                cmd.CommandText = "System.cwpack2.getClientOrdersForEmployeeToDo";
                 cmd.CommandType = CommandType.StoredProcedure;
 
 
@@ -129,7 +129,7 @@ namespace Employeer
 
                 OracleCommand cmd = new Oracle.ManagedDataAccess.Client.OracleCommand();
                 cmd.Connection = conn;
-                cmd.CommandText = "cwpack1.getClientOrdersForEmployee";
+                cmd.CommandText = "System.cwpack2.getClientOrdersForEmployee";
                 cmd.CommandType = CommandType.StoredProcedure;
 
 
@@ -166,7 +166,7 @@ namespace Employeer
 
                 OracleCommand cmd = new OracleCommand();
                 cmd.Connection = conn;
-                cmd.CommandText = "cwpack1.getComponentsNameAndId";
+                cmd.CommandText = "System.cwpack2.getComponentsNameAndId";
                 cmd.CommandType = CommandType.StoredProcedure;
 
 
@@ -304,6 +304,7 @@ namespace Employeer
                     listBox1.Items.Clear();
                     repairBox1.Clear();
                     priceBox2.Clear();
+                    addcomponentIdsList.Clear();
 
                 }
                 
@@ -325,7 +326,7 @@ namespace Employeer
                 // MessageBox.Show("Open1");
                 OracleCommand cmd = new Oracle.ManagedDataAccess.Client.OracleCommand();
                 cmd.Connection = conn;
-                cmd.CommandText = "cwpack1.changeStatusAndMakers";
+                cmd.CommandText = "System.cwpack2.changeStatusAndMakers";
                 cmd.CommandType = CommandType.StoredProcedure;
 
                 cmd.Parameters.Add("ior", OracleDbType.Int32).Value = id_order;
@@ -362,7 +363,7 @@ namespace Employeer
                 // MessageBox.Show("Open1");
                 OracleCommand cmd = new OracleCommand();
                 cmd.Connection = conn;
-                cmd.CommandText = "cwpack1.getLastMakers";
+                cmd.CommandText = "System.cwpack2.getLastMakers";
                 cmd.CommandType = CommandType.StoredProcedure;
 
                 cmd.Parameters.Add("idmk", OracleDbType.Int64).Direction = ParameterDirection.Output;
@@ -396,7 +397,7 @@ namespace Employeer
                 // MessageBox.Show("Open1");
                 OracleCommand cmd = new Oracle.ManagedDataAccess.Client.OracleCommand();
                 cmd.Connection = conn;
-                cmd.CommandText = "cwpack1.addMakers";
+                cmd.CommandText = "System.cwpack2.addMakers";
                 cmd.CommandType = CommandType.StoredProcedure;
 
                 cmd.Parameters.Add("repairtype", OracleDbType.NVarchar2).Value = TypeOfRepair;
@@ -429,7 +430,7 @@ namespace Employeer
                 // MessageBox.Show("Open1");
                 OracleCommand cmd = new Oracle.ManagedDataAccess.Client.OracleCommand();
                 cmd.Connection = conn;
-                cmd.CommandText = "cwpack1.addComponentsOrder";
+                cmd.CommandText = "System.cwpack2.addComponentsOrder";
                 cmd.CommandType = CommandType.StoredProcedure;
 
                 cmd.Parameters.Add("idcomp", OracleDbType.Int32).Value = idcomp;
@@ -467,7 +468,7 @@ namespace Employeer
                 // MessageBox.Show("Open1");
                 OracleCommand cmd = new Oracle.ManagedDataAccess.Client.OracleCommand();
                 cmd.Connection = conn;
-                cmd.CommandText = "cwpack1.changeOrderStatus";
+                cmd.CommandText = "System.cwpack2.changeOrderStatus";
                 cmd.CommandType = CommandType.StoredProcedure;
 
                 cmd.Parameters.Add("idor", OracleDbType.Int32).Value = idor;
@@ -533,7 +534,7 @@ namespace Employeer
 
                 OracleCommand cmd = new Oracle.ManagedDataAccess.Client.OracleCommand();
                 cmd.Connection = conn;
-                cmd.CommandText = "cwpack1.getOrdersHistoryForEmployee";
+                cmd.CommandText = "System.cwpack2.getOrdersHistoryForEmployee";
                 cmd.CommandType = CommandType.StoredProcedure;
 
 

@@ -56,7 +56,7 @@ namespace Employeer
                 
                 OracleCommand cmd = new OracleCommand();
                 cmd.Connection = conn;
-                cmd.CommandText = "cwpack1.checkEmpAccount";
+                cmd.CommandText = "System.cwpack2.checkEmpAccount";
                 cmd.CommandType = CommandType.StoredProcedure;
                 
                 cmd.Parameters.Add("login", OracleDbType.NVarchar2).Value = login;

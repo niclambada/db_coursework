@@ -54,7 +54,7 @@ namespace DBCW
                
                 OracleCommand cmd = new OracleCommand();
                 cmd.Connection = conn;
-                cmd.CommandText = "cwpack1.getNameAndIdEmp";
+                cmd.CommandText = "System.cwpack1.getNameAndIdEmp";
                 cmd.CommandType = CommandType.StoredProcedure;
 
                 
@@ -134,7 +134,7 @@ namespace DBCW
                 // MessageBox.Show("Open1");
                 OracleCommand cmd = new OracleCommand();
                 cmd.Connection = conn;
-                cmd.CommandText = "cwpack1.getClienIdAndName";
+                cmd.CommandText = "System.cwpack1.getClienIdAndName";
                 cmd.CommandType = CommandType.StoredProcedure;
             
                 cmd.Parameters.Add("Login", OracleDbType.NVarchar2).Value = Login;
@@ -213,7 +213,7 @@ namespace DBCW
                 // MessageBox.Show("Open1");
                 OracleCommand cmd = new Oracle.ManagedDataAccess.Client.OracleCommand();
                 cmd.Connection = conn;
-                cmd.CommandText = "cwpack1.makeOrder";
+                cmd.CommandText = "System.cwpack1.makeOrder";
                 cmd.CommandType = CommandType.StoredProcedure;
              
                 cmd.Parameters.Add("eq_Id", OracleDbType.Int32).Value = eq_Id;
@@ -252,7 +252,7 @@ namespace DBCW
                 // MessageBox.Show("Open1");
                 OracleCommand cmd = new OracleCommand();
                 cmd.Connection = conn;
-                cmd.CommandText = "cwpack1.getEpuipmentIdForOrder";
+                cmd.CommandText = "System.cwpack1.getEpuipmentIdForOrder";
                 cmd.CommandType = CommandType.StoredProcedure;
 
                 cmd.Parameters.Add("results", OracleDbType.Int64).Direction = ParameterDirection.Output;
@@ -288,7 +288,7 @@ namespace DBCW
                 // MessageBox.Show("Open1");
                 OracleCommand cmd = new OracleCommand();
                 cmd.Connection = conn;
-                cmd.CommandText = "cwpack1.addEquipment";
+                cmd.CommandText = "System.cwpack1.addEquipment";
                 cmd.CommandType = CommandType.StoredProcedure;
 
                 cmd.Parameters.Add("eqname", OracleDbType.NVarchar2).Value = nameBox1;
@@ -340,7 +340,7 @@ namespace DBCW
                 
                 OracleCommand cmd = new Oracle.ManagedDataAccess.Client.OracleCommand();
                 cmd.Connection = conn;
-                cmd.CommandText = "cwpack1.showCurrentClientOrders";
+                cmd.CommandText = "System.cwpack1.showCurrentClientOrders";
                 cmd.CommandType = CommandType.StoredProcedure;
 
 
@@ -387,7 +387,7 @@ namespace DBCW
 
                 OracleCommand cmd = new Oracle.ManagedDataAccess.Client.OracleCommand();
                 cmd.Connection = conn;
-                cmd.CommandText = "cwpack1.showHistoryClientOrders";
+                cmd.CommandText = "System.cwpack1.showHistoryClientOrders";
                 cmd.CommandType = CommandType.StoredProcedure;
 
 
