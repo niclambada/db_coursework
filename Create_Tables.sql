@@ -878,12 +878,18 @@ end;
 
 ---create dir for export--------------------
 CREATE OR REPLACE DIRECTORY  DIR AS 'C:\XML\IMPORT';
+select * from client
 
+create user C##Client identified by Password123
+create user C##Employee identified by Password123
+
+grant execute on System.cwpack1 to  C##Client
+grant execute on System.cwpack2 to  C##Employee
 
 select directory_name from all_directories where directory_path = 'C:\XML\IMPORT'
 
 
 ---select fullname, id_vac, passportseria,passportnumber,adress,phonenumber,to_char(startworkdate, 'DD-MM-YYYY') from employee;
 --------------------------end body---------------------
-
-
+EXPLAIN PLAN FOR Select * from Client;
+SELECT PLAN_TABLE_OUTPUT FROM TABLE(DBMS_XPLAN.DISPLAY());
