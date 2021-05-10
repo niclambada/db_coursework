@@ -11,7 +11,7 @@ namespace Employeer
     {
         public static OracleConnection GetDBConnection()
         {
-            string host = "192.168.100.4";
+            string host = "192.168.100.6";
             int port = 1522;
             string sid = "orcl";
             string user = "C##Employee";
